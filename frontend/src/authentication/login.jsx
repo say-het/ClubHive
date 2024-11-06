@@ -1,7 +1,8 @@
+// Import necessary modules
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { auth } from '../firebase';  // Import the Firebase auth instance
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, OAuthProvider } from 'firebase/auth';  // Firebase authentication methods
+import { auth } from '../firebase'; // Firebase auth instance import
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, OAuthProvider } from 'firebase/auth'; // Firebase authentication methods
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -13,7 +14,6 @@ function Login() {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in successfully
         console.log("Logged in:", userCredential);
       })
       .catch((error) => {
@@ -33,18 +33,7 @@ function Login() {
       });
   };
 
-  // Handle Apple sign-in (OAuth Provider)
-  const handleAppleSignIn = () => {
-    const provider = new OAuthProvider('apple.com');
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Apple sign-in successful:", result.user);
-      })
-      .catch((error) => {
-        console.error("Apple sign-in error:", error.message);
-      });
-  };
-
+  
   // Handle password reset
   const handlePasswordReset = () => {
     sendPasswordResetEmail(auth, emailForReset)
@@ -94,13 +83,10 @@ function Login() {
         </form>
         <p className="text-center text-gray-600 mt-4">
           Don't have an account? 
-          <Link to="/signup">
-            <p className="text-blue-500 hover:underline">Sign up</p>
-          </Link>
+          <Link to="/signup" className="text-blue-500 hover:underline ml-1">Sign up</Link>
         </p>
 
         <div className="flex justify-center space-x-4 mt-6">
-          {/* Google Sign-In Button */}
           <button
             onClick={handleGoogleSignIn}
             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200"
@@ -108,13 +94,6 @@ function Login() {
             Sign in with Google
           </button>
 
-          {/* Apple Sign-In Button */}
-          <button
-            onClick={handleAppleSignIn}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-200"
-          >
-            Sign in with Apple
-          </button>
         </div>
 
         <div className="mt-4">

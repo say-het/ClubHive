@@ -1,19 +1,18 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
 
-// Your Firebase configuration object (you can get this from Firebase Console)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
+  apiKey: "AIzaSyAW4LlpHIGxvHkCjvKraZ4DZRiLEs7PYqE",
+  authDomain: "mystery-9dd4b.firebaseapp.com",
+  projectId: "mystery-9dd4b",
+  storageBucket: "mystery-9dd4b.firebasestorage.app",
+  messagingSenderId: "406176490090",
+  appId: "1:406176490090:web:c3efec3eeda693c813e013",
+  measurementId: "G-Y26TRPVJSW"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-export { auth };
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+export const appleProvider = new OAuthProvider('apple.com');
