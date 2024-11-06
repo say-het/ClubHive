@@ -13,7 +13,7 @@ function Home() {
   const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [UniversityName,setUniversityName] = useState('');
   const addGroup = () => {
     if (newGroupName) {
       const newGroup = {
@@ -113,11 +113,25 @@ function Home() {
                 onChange={(e) => setNewGroupName(e.target.value)}
                 className="p-2 border border-gray-300 rounded-lg w-full mb-4"
               />
+              <input
+                type="text"
+                placeholder="University Name"
+                value ={UniversityName}
+                onChange={(e) => setUniversityName(e.target.value)}
+                
+                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+              />
+              <p>Inter college group?  
+              : <input
+                type= "checkbox"
+              />
+              </p>
+
               <button onClick={addGroup} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
-                Add Group
+                Add Group   
               </button>
               <button onClick={() => setIsCreateGroupModalOpen(false)} className="mt-4 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
-                Close
+                Close 
               </button>
             </div>
           </div>
