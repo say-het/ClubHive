@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';  // Import Link from react-router-dom
+import { auth } from '../firebase'; // Assuming firebase.js is properly set up
+import { signInWithPopup } from 'firebase/auth';
+// import { auth, googleProvider, appleProvider } from '../firebase'; // Assuming firebase.js is properly set up
 
 function Signup() {
   const [name, setName] = useState('');
@@ -15,6 +18,27 @@ function Signup() {
       return;
     }
     console.log("Name:", name, "Email:", email, "Password:", password);
+    // Implement Firebase signup logic here
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // Handle successful sign-in, such as redirecting the user
+      console.log('Google sign-in successful');
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, appleProvider);
+      // Handle successful sign-in, such as redirecting the user
+      console.log('Apple sign-in successful');
+    } catch (error) {
+      console.error('Apple sign-in error:', error);
+    }
   };
 
   return (
@@ -78,11 +102,26 @@ function Signup() {
           </button>
         </form>
         <p className="text-center text-gray-600 mt-4">
-          Already have an account?          \
-           <Link to="/login"> {/* Corrected Link component */}
+          Already have an account?          
+          <Link to="/login"> {/* Corrected Link component */}
             <p className="text-blue-500 hover:underline">Login</p>
           </Link>
         </p>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleGoogleSignIn}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 w-full mb-2"
+          >
+            Sign up with Google
+          </button>
+          <button
+            onClick={handleAppleSignIn}
+            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 w-full"
+          >
+            Sign up with Apple
+          </button>
+        </div>
       </div>
     </div>
   );
