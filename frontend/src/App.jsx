@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Welcome from "./components/Welcome";
 import Login from "./authentication/login";
 import Signup from "./authentication/Signup";
+import Club from "./components/Club";
 export default function App() {
   return (
     <Router>        
@@ -13,7 +14,8 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-        </Routes>
+          <Route path="/club" element={<Club />} /> {/* Club page with dynamic ID */}
+          </Routes>
     </Router>
   );
 }

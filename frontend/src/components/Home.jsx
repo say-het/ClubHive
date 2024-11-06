@@ -2,31 +2,37 @@ import React, { useState } from 'react';
 import Navbar from './Navbar';
 
 function Home() {
-  // State to manage the clubs
-  const [clubs, setClubs] = useState([
+  const [availableGroups, setAvailableGroups] = useState([
     { id: 1, name: 'Club 1' },
     { id: 2, name: 'Club 2' },
     { id: 3, name: 'Club 3' },
     { id: 4, name: 'Inter college club 1' }
   ]);
-  const [newClubName, setNewClubName] = useState('');  // To store new club name
+  const [userGroups, setUserGroups] = useState([]);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
+  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Function to handle adding a new club
-  const addClub = () => {
-    if (newClubName) {
-      const newClub = {
-        id: clubs.length + 1,
-        name: newClubName
+  const addGroup = () => {
+    if (newGroupName) {
+      const newGroup = {
+        id: availableGroups.length + 1,
+        name: newGroupName
       };
-      setClubs([...clubs, newClub]);
-      setNewClubName(''); // Clear input field after adding
+      setAvailableGroups([...availableGroups, newGroup]);
+      setNewGroupName('');
+      setIsCreateGroupModalOpen(false); // Close the modal after adding
     }
   };
 
-  // Function to handle removing a club
-  const removeClub = (id) => {
-    setClubs(clubs.filter(club => club.id !== id));
+  const joinGroup = (group) => {
+    setUserGroups([...userGroups, group]);
   };
+
+  const filteredGroups = availableGroups.filter(group =>
+    group.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -35,51 +41,87 @@ function Home() {
         <div className="flex flex-1">
           {/* Main Content */}
           <div className="flex-1 p-6 bg-white rounded-lg shadow-lg">
-            {/* Inner Frame for Main Content */}
-            <div className="relative h-full p-6 border-4 border-blue-500 rounded-lg flex flex-wrap justify-between items-start">
-              {/* Dynamically display the clubs */}
-              {clubs.map((club) => (
-                <div
-                  key={club.id}
-                  className="w-1/3 h-1/4 bg-blue-100 rounded-lg shadow-md flex items-center justify-between p-4 my-4"
-                >
-                  <span>{club.name}</span>
-                  {/* Button to remove the club */}
-                  <button
-                    onClick={() => removeClub(club.id)}
-                    className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
+            <h2 className="text-2xl font-bold mb-4">My Groups</h2>
+            <div className="relative h-full p-7 border-4 border-blue-500 rounded-lg flex flex-wrap justify-between items-start">
+              {userGroups.length === 0 ? (
+                <p className="text-gray-500">You haven't joined any groups yet.</p>
+              ) : (
+                userGroups.map((group) => (
+                  <div key={group.id} className="w-1/3 h-1/4 bg-blue-100 rounded-lg shadow-md flex items-center justify-between p-4 my-4">
+                    <span>{group.name}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
+
           {/* Right Sidebar Panel */}
           <div className="w-1/5 bg-blue-200 p-6 border-l-4 border-blue-500 rounded-lg shadow-lg">
             <h2 className="text-lg font-semibold text-blue-700 mb-4">Sidebar</h2>
-            <p className="text-blue-600 mb-4">- Register Club</p>
             
-            {/* Input field for creating new club */}
-            <input
-              type="text"
-              placeholder="New Club Name"
-              value={newClubName}
-              onChange={(e) => setNewClubName(e.target.value)}
-              className="p-2 mb-4 border-2 border-blue-300 rounded-lg w-full"
-            />
-            
-            {/* Button to create club */}
-            <button
-              onClick={addClub}
-              className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
-            >
-              Create Club
+            <button onClick={() => setIsAvailableGroupsModalOpen(true)} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 mb-4">
+              See Available Clubs
             </button>
             
-            <p className="text-blue-600 mt-4">- Check Existing Clubs</p>
+            <button onClick={() => setIsCreateGroupModalOpen(true)} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
+              Create Group
+            </button>
           </div>
         </div>
+
+        {/* Modal for Available Groups */}
+        {isAvailableGroupsModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-3/5 max-w-lg">
+              <h3 className="text-xl font-bold mb-4">Available Clubs</h3>
+              <input
+                type="text"
+                placeholder="Search for a group"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+              />
+              <div className="max-h-60 overflow-y-auto">
+                {filteredGroups.map((group) => (
+                  <div key={group.id} className="flex justify-between items-center mb-2 p-2 border border-gray-200 rounded-lg">
+                    <span>{group.name}</span>
+                    <button
+                      onClick={() => joinGroup(group)}
+                      className="bg-blue-500 text-white p-1 rounded-lg hover:bg-blue-600"
+                    >
+                      Join
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setIsAvailableGroupsModalOpen(false)} className="mt-4 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal for Creating a New Group */}
+        {isCreateGroupModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-3/5 max-w-lg">
+              <h3 className="text-xl font-bold mb-4">Create a New Club</h3>
+              <input
+                type="text"
+                placeholder="New Group Name"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+              />
+              <button onClick={addGroup} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
+                Add Group
+              </button>
+              <button onClick={() => setIsCreateGroupModalOpen(false)} className="mt-4 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
