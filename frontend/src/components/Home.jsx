@@ -1,7 +1,10 @@
 import React from 'react';
+import Navbar from './Navbar';
 
 function Home() {
   return (
+    <>
+    <Navbar />
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1">
         {/* Main Content */}
@@ -17,12 +20,13 @@ function Home() {
         </div>
         {/* Right Sidebar Panel */}
         <div className="w-1/5 bg-gray-200 p-4 border-l-2 border-black">
-          <h2 className="text-lg font-semibold">Sidebar</h2>
+          <h2 c   lassName="text-lg font-semibold">Sidebar</h2>
           <p>- register club</p>
           <p>- Check existing clubs</p>
         </div>
       </div>
     </div>
+    </>
   );
 }
 
