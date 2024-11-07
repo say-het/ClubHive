@@ -16,6 +16,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [UniversityName,setUniversityName] = useState('');
   const addGroup = async () => {
+    console.log("first")
     if (newGroupName) {
       const newGroup = {
         id: availableGroups.length + 1,
@@ -30,12 +31,13 @@ function Home() {
       newGroupName,
       UniversityName
     }
+    console.log(clubData)
     const response = await fetch("http://localhost:3000/api/clubs/addclub",{
       method:"POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-
+      body: JSON.stringify(clubData),
     })
+    console.log(response)
   };
 
   const joinGroup = (group) => {
