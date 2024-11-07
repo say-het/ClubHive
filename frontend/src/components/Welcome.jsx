@@ -13,7 +13,7 @@ useEffect(() => {
   } else {
     setName('');
   }
-}, []);
+}, [localStorage.getItem('user')]);
 
   return (
 <>
