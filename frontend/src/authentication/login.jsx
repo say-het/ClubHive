@@ -50,6 +50,11 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(UserData),
       });
+      localStorage.setItem("user", JSON.stringify(UserData));
+      // location.reload();
+      navigate('/');
+
+
 
       if (response.ok) {
         console.log("User saved to MongoDB!");

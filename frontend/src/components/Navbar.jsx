@@ -11,10 +11,11 @@ function Navbar() {
     const user = localStorage.getItem("user");
     if (user) {
       const parsedUser = JSON.parse(user);
+      // console.log("OK")
       setHeading(parsedUser.name);
       setIsLoggedIn(true);
     }
-  }, [localStorage.getItem("user")]);
+  }, []);
 
   const handleLogout = async () => {
     try {
