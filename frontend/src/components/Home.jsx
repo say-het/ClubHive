@@ -10,36 +10,28 @@ function Home() {
   ]);
   const [userGroups, setUserGroups] = useState([]);
   const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupUserName, setNewGroupUserName] = useState('');
   const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [UniversityName,setUniversityName] = useState('');
-  const addGroup = async () => {
+  const [UniversityName, setUniversityName] = useState('');
+
+  const addGroup = () => {
     if (newGroupName) {
       const newGroup = {
         id: availableGroups.length + 1,
         name: newGroupName
       };
       setAvailableGroups([...availableGroups, newGroup]);
+      setUserGroups([...userGroups, newGroup]); // Add new group directly to userGroups
       setNewGroupName('');
-      setIsCreateGroupModalOpen(false); // Close the modal after adding
+      setIsCreateGroupModalOpen(false);
     }
-    const clubData = {
-      newGroupUserName,
-      newGroupName,
-      UniversityName
-    }
-    const response = await fetch("http://localhost:3000/api/clubs/addclub",{
-      method:"POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-
-    })
   };
 
   const joinGroup = (group) => {
-    setUserGroups([...userGroups, group]);
+    if (!userGroups.find((g) => g.id === group.id)) {
+      setUserGroups([...userGroups, group]);
+    }
   };
 
   const filteredGroups = availableGroups.filter(group =>
@@ -120,37 +112,29 @@ function Home() {
               <h3 className="text-xl font-bold mb-4">Create a New Club</h3>
               <input
                 type="text"
-                placeholder="New Unique Group Name"
+                placeholder="New Group Name"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
                 className="p-2 border border-gray-300 rounded-lg w-full mb-4"
               />
               <input
                 type="text"
-                placeholder="New Group Name"
-                value={newGroupName}
-                onChange={(e) => setNewGroupUserName(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
-              />
-              <input
-                type="text"
                 placeholder="University Name"
-                value ={UniversityName}
+                value={UniversityName}
                 onChange={(e) => setUniversityName(e.target.value)}
-                
                 className="p-2 border border-gray-300 rounded-lg w-full mb-4"
               />
-              <p>Inter college group?  
+              <p>Inter college group?       
               : <input
-                type= "checkbox"
+                type="checkbox"
               />
               </p>
 
               <button onClick={addGroup} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
-                Add Group   
+                Add Group
               </button>
               <button onClick={() => setIsCreateGroupModalOpen(false)} className="mt-4 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
-                Close 
+                Close
               </button>
             </div>
           </div>
