@@ -10,11 +10,12 @@ function Home() {
   ]);
   const [userGroups, setUserGroups] = useState([]);
   const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupUserName, setNewGroupUserName] = useState('');
   const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [UniversityName,setUniversityName] = useState('');
-  const addGroup = () => {
+  const addGroup = async () => {
     if (newGroupName) {
       const newGroup = {
         id: availableGroups.length + 1,
@@ -24,6 +25,17 @@ function Home() {
       setNewGroupName('');
       setIsCreateGroupModalOpen(false); // Close the modal after adding
     }
+    const clubData = {
+      newGroupUserName,
+      newGroupName,
+      UniversityName
+    }
+    const response = await fetch("http://localhost:3000/api/clubs/addclub",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+
+    })
   };
 
   const joinGroup = (group) => {
@@ -108,9 +120,16 @@ function Home() {
               <h3 className="text-xl font-bold mb-4">Create a New Club</h3>
               <input
                 type="text"
-                placeholder="New Group Name"
+                placeholder="New Unique Group Name"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
+                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+              />
+              <input
+                type="text"
+                placeholder="New Group Name"
+                value={newGroupName}
+                onChange={(e) => setNewGroupUserName(e.target.value)}
                 className="p-2 border border-gray-300 rounded-lg w-full mb-4"
               />
               <input

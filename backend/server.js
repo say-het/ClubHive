@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/user');
+const clubRoutes = require('./routes/club');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
@@ -12,7 +13,7 @@ app.use(cors({
   credentials: true 
 }));
 
-const uri = "mongodb+srv://iambigbrain:heheiam@cluster0.zzdmx.mongodb.net/"
+const uri = process.env.URI;
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -34,3 +35,4 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 app.use('/api/users', userRoutes);
+app.use('/api/clubs', clubRoutes);
