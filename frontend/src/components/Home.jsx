@@ -17,7 +17,6 @@ function Home() {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  // Load theme preference from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
@@ -50,7 +49,7 @@ function Home() {
       newGroupName,
       universityName
     };
-    console.log(clubData);
+
     try {
       const response = await fetch('http://localhost:3000/api/clubs/addclub', {
         method: 'POST',
@@ -111,11 +110,11 @@ function Home() {
               className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black bg-teal-400'}  p-3 rounded-lg hover:bg-teal-500 mb-4 transition duration-300`}
             >
               See Available Clubs
-            </button>
+            </button> 
 
             <button
               onClick={() => setIsCreateGroupModalOpen(true)}
-              className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
+              className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black      bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
             >
               Create Group
             </button>
@@ -184,7 +183,7 @@ function Home() {
               />
               <input
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter your clubUID"
                 value={newGroupUserName}
                 onChange={(e) => setNewGroupUserName(e.target.value)}
                 className="p-3 border border-teal-300 rounded-lg w-full mb-4 bg-teal-700 text-white focus:outline-none"

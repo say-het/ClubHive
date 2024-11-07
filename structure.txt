@@ -1,0 +1,11 @@
+structure:
+
+welcoming page -> login -> home -> clubs access   
+                    
+-- login : authentication -> college id card
+
+
+-- side panel create clubs option : create intercollege club
+                                  : create college club/ register college
+
+                                  
