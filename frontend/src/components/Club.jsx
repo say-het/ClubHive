@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from './Navbar';
 
 function Club() {
   // Sample data for members and messages
@@ -22,6 +23,8 @@ function Club() {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="flex min-h-screen bg-gray-100">
       {/* Left side - Members list */}
       <div className="w-1/3 p-4 bg-white border-r border-gray-200">
@@ -68,6 +71,7 @@ function Club() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
