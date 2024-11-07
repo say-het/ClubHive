@@ -21,13 +21,13 @@ const messageSchema = new mongoose.Schema({
 const clubSchema = new mongoose.Schema({
     clubUniqueName: {
         type: String,
-        required: true,
-        unique: true
+        // required: true,
+        // unique: true
     },
     name: {
         type: String,
-        required: true,
-        unique: true
+        // required: true,
+        // unique: true
     },
     universityName: {
         type: String,

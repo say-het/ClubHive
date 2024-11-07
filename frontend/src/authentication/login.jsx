@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from '../firebase'; // Firebase auth instance import
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, OAuthProvider } from 'firebase/auth'; // Firebase authentication methods
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth'; // Firebase authentication methods
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -10,50 +10,47 @@ function Login() {
   const [password, setPassword] = useState('');
   const [emailForReset, setEmailForReset] = useState('');
   const navigate = useNavigate();
-  // const [name, setname] = useState('');
 
   // Handle form submission for standard email/password login
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Attempt to sign in the user with email and password
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Attempt to sign in the user with email and password
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-    // Check if userCredential is retrieved successfully
-    // console.log("User Credential:", userCredential.user.displayName);
+      // Define userData based on userCredential
+      const userData = {
+        name: userCredential.user.displayName,
+        email: userCredential.user.email,
+      };
 
-    // Define userData based on userCredential
-    const userData = {
-      name: userCredential.user.displayName,
-      email: userCredential.user.email,
-    };
-
-    // Store userData in localStorage
-    localStorage.setItem("user", JSON.stringify(userData));
-    console.log("Successful Login")
-    navigate('/');
-
-  } catch (error) {
-    console.error("Error signing in:", error.message);
-  }
-};
-
+      // Store userData in localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+      console.log("Successful Login");
+      navigate('/');
+    } catch (error) {
+      console.error("Error signing in:", error.message);
+    }
+  };
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
     try {
-      const userCredentaials = await signInWithPopup(auth, googleProvider);
-      const firebaseToken = await userCredentaials.user.getIdToken();
+      const provider = new GoogleAuthProvider();
+      const userCredentials = await signInWithPopup(auth, provider);
+      const firebaseToken = await userCredentials.user.getIdToken();
       const UserData = {
         firebaseToken,
-        name,
-        email
-      } 
-      const response = await fetch("http://localhost:3000/api/users/signup",{
+        name: userCredentials.user.displayName,
+        email: userCredentials.user.email
+      };
+
+      const response = await fetch("http://localhost:3000/api/users/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(UserData),
-      })
+      });
+
       if (response.ok) {
         console.log("User saved to MongoDB!");
       } else {
@@ -61,7 +58,6 @@ function Login() {
       }
       console.log('Google sign-in successful');
       navigate('/');
-
     } catch (error) {
       console.error('Google sign-in error:', error.message);
     }
@@ -126,7 +122,6 @@ function Login() {
           >
             Sign in with Google
           </button>
-
         </div>
 
         <div className="mt-4">

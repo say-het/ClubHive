@@ -50,7 +50,7 @@ function Home() {
       newGroupName,
       universityName
     };
-
+    console.log(clubData);
     try {
       const response = await fetch('http://localhost:3000/api/clubs/addclub', {
         method: 'POST',

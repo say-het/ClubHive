@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { auth } from '../firebase';
 
 function Navbar() {
+  
   const [heading, setHeading] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -13,7 +14,7 @@ function Navbar() {
       setHeading(parsedUser.name);
       setIsLoggedIn(true);
     }
-  }, []);
+  }, [localStorage.getItem("user")]);
 
   const handleLogout = async () => {
     try {

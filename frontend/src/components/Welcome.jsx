@@ -17,7 +17,6 @@ useEffect(() => {
 
   return (
 <>
-<Navbar />
     <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center text-center">
       <div className="space-y-4">
         <h1 className="text-4xl font-bold text-blue-600">Welcome {name}</h1>
