@@ -26,8 +26,10 @@ function Login() {
 
       // Store userData in localStorage
       localStorage.setItem("user", JSON.stringify(userData));
+      
       console.log("Successful Login");
       navigate('/');
+      location.reload();
     } catch (error) {
       console.error("Error signing in:", error.message);
     }
@@ -51,8 +53,8 @@ function Login() {
         body: JSON.stringify(UserData),
       });
       localStorage.setItem("user", JSON.stringify(UserData));
-      // location.reload();
       navigate('/');
+      location.reload();
 
 
 
@@ -63,11 +65,12 @@ function Login() {
       }
       console.log('Google sign-in successful');
       navigate('/');
+      // location.reload();
     } catch (error) {
       console.error('Google sign-in error:', error.message);
     }
   };
-
+  
   // Handle password reset
   const handlePasswordReset = () => {
     sendPasswordResetEmail(auth, emailForReset)
@@ -77,7 +80,7 @@ function Login() {
       .catch((error) => {
         console.error("Error sending password reset email:", error.message);
       });
-  };
+    };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

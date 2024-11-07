@@ -45,7 +45,7 @@ function Signup() {
         
         localStorage.setItem("user",JSON.stringify(userData));
         navigate('/');
-
+        location.reload();
       } else {
         console.error("Error saving user:", response.statusText);
       }
@@ -78,6 +78,7 @@ function Signup() {
       if (response.ok) {
         console.log("User saved to MongoDB!");
         localStorage.setItem("user",JSON.stringify(UserData));
+        location.reload();
 
       } else {
         console.error("Error saving user:", response.statusText);

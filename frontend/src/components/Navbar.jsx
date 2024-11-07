@@ -23,6 +23,8 @@ function Navbar() {
       localStorage.removeItem("user");
       setHeading('');
       setIsLoggedIn(false);
+      location.reload();
+
     } catch (e) {
       console.error("Error logging out:", e);
     }
