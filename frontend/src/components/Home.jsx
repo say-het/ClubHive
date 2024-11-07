@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 
 function Home() {
@@ -11,12 +11,30 @@ function Home() {
   const [userGroups, setUserGroups] = useState([]);
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupUserName, setNewGroupUserName] = useState('');
+  const [universityName, setUniversityName] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [UniversityName,setUniversityName] = useState('');
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  // Load theme preference from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkTheme(true);
+    }
+  }, []);
+
+  // Toggle theme and save preference
+  const toggleTheme = () => {
+    setIsDarkTheme((prev) => {
+      const newTheme = !prev;
+      localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+      return newTheme;
+    });
+  };
+
   const addGroup = async () => {
-    console.log("first")
     if (newGroupName) {
       const newGroup = {
         id: availableGroups.length + 1,
@@ -24,45 +42,60 @@ function Home() {
       };
       setAvailableGroups([...availableGroups, newGroup]);
       setNewGroupName('');
-      setIsCreateGroupModalOpen(false); // Close the modal after adding
+      setIsCreateGroupModalOpen(false);
     }
+
     const clubData = {
       newGroupUserName,
       newGroupName,
-      UniversityName
+      universityName
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/api/clubs/addclub', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(clubData)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add group');
+      }
+    } catch (error) {
+      console.error(error.message);
     }
-    console.log(clubData)
-    const response = await fetch("http://localhost:3000/api/clubs/addclub",{
-      method:"POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(clubData),
-    })
-    console.log(response)
   };
 
   const joinGroup = (group) => {
-    setUserGroups([...userGroups, group]);
+    setUserGroups((prevGroups) => [...prevGroups, group]);
   };
 
-  const filteredGroups = availableGroups.filter(group =>
+  const filteredGroups = availableGroups.filter((group) =>
     group.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <>
-      <Navbar />
-      <div className="flex flex-col min-h-screen bg-blue-50">
+      <div className={`flex flex-col min-h-screen ${isDarkTheme ? 'bg-gray-900 text-white' : ' text-black bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600'}`}>
         <div className="flex flex-1">
           {/* Main Content */}
-          <div className="flex-1 p-6 bg-white rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">My Groups</h2>
-            <div className="relative h-full p-7 border-4 border-blue-500 rounded-lg flex flex-wrap justify-between items-start">
+          <div className={`flex-1 p-6 ${isDarkTheme ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-xl`}>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">My Groups</h2>
+            <div className={`relative h-full p-7 border-4 ${isDarkTheme ? 'border-teal-600' : 'border-teal-400'} rounded-lg flex flex-wrap justify-between items-start ${isDarkTheme ? 'bg-gray-700' : 'bg-gradient-to-b from-teal-200 to-teal-100'}`}>
               {userGroups.length === 0 ? (
                 <p className="text-gray-500">You haven't joined any groups yet.</p>
               ) : (
                 userGroups.map((group) => (
-                  <div key={group.id} className="w-1/3 h-1/4 bg-blue-100 rounded-lg shadow-md flex items-center justify-between p-4 my-4">
+                  <div
+                    key={group.id}
+                    className={`w-full sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6 ${isDarkTheme ? 'bg-teal-700' : 'bg-teal-500'} text-white rounded-lg shadow-md flex items-center justify-between p-4 my-4 transform transition duration-300 hover:scale-105`}
+                  >
                     <span>{group.name}</span>
+                    <button
+                      onClick={() => joinGroup(group)}
+                      className="bg-teal-600 hover:bg-teal-700 p-2 rounded-lg transition duration-300"
+                    >
+                      Join
+                    </button>
                   </div>
                 ))
               )}
@@ -70,45 +103,67 @@ function Home() {
           </div>
 
           {/* Right Sidebar Panel */}
-          <div className="w-1/5 bg-blue-200 p-6 border-l-4 border-blue-500 rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold text-blue-700 mb-4">Sidebar</h2>
-            
-            <button onClick={() => setIsAvailableGroupsModalOpen(true)} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 mb-4">
+          <div className={`w-1/5 ${isDarkTheme ? 'bg-gray-800' : 'bg-gradient-to-b from-teal-300 to-teal-400'} p-6 border-l-4 ${isDarkTheme ? 'border-teal-600' : 'border-teal-400'} rounded-lg shadow-lg`}>
+            <h2 className="text-lg font-semibold text-white mb-4">Sidebar</h2>
+
+            <button
+              onClick={() => setIsAvailableGroupsModalOpen(true)}
+              className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black bg-teal-400'}  p-3 rounded-lg hover:bg-teal-500 mb-4 transition duration-300`}
+            >
               See Available Clubs
             </button>
-            
-            <button onClick={() => setIsCreateGroupModalOpen(true)} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
+
+            <button
+              onClick={() => setIsCreateGroupModalOpen(true)}
+              className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
+            >
               Create Group
             </button>
+
+            {/* Theme Switcher */}
+            <div className="mt-4">
+              <button
+                onClick={toggleTheme}
+                className={`w-full ${isDarkTheme ? 'bg-teal-600' : 'text-black bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
+              >
+                Switch to {isDarkTheme ? 'Light' : 'Dark'} Mode
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Modal for Available Groups */}
         {isAvailableGroupsModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-3/5 max-w-lg">
-              <h3 className="text-xl font-bold mb-4">Available Clubs</h3>
+            <div className={`bg-teal-600 p-6 rounded-lg shadow-xl w-3/5 max-w-lg transform transition duration-500 hover:scale-105 ${isDarkTheme ? 'bg-teal-800' : ''}`}>
+              <h3 className="text-2xl font-semibold text-white mb-4">Available Clubs</h3>
               <input
                 type="text"
                 placeholder="Search for a group"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                className="p-3 border border-teal-300 rounded-lg w-full mb-4 bg-teal-700 text-white focus:outline-none"
               />
               <div className="max-h-60 overflow-y-auto">
                 {filteredGroups.map((group) => (
-                  <div key={group.id} className="flex justify-between items-center mb-2 p-2 border border-gray-200 rounded-lg">
-                    <span>{group.name}</span>
+                  <div
+                    key={group.id}
+                    className={`flex justify-between items-center mb-3 p-3 border border-teal-300 rounded-lg ${isDarkTheme ? 'bg-teal-700' : 'bg-teal-500'} hover:bg-teal-400 transition duration-300`}
+                  >
+                    <span className="text-white">{group.name}</span>
                     <button
                       onClick={() => joinGroup(group)}
-                      className="bg-blue-500 text-white p-1 rounded-lg hover:bg-blue-600"
+                      className="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition duration-300"
                     >
                       Join
                     </button>
                   </div>
                 ))}
               </div>
-              <button onClick={() => setIsAvailableGroupsModalOpen(false)} className="mt-4 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
+              <button
+                onClick={() => setIsAvailableGroupsModalOpen(false)}
+                className="mt-4 w-full bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition duration-300"
+              >
                 Close
               </button>
             </div>
@@ -118,42 +173,43 @@ function Home() {
         {/* Modal for Creating a New Group */}
         {isCreateGroupModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-3/5 max-w-lg">
-              <h3 className="text-xl font-bold mb-4">Create a New Club</h3>
+            <div className={`bg-teal-600 p-6 rounded-lg shadow-xl w-3/5 max-w-lg transform transition duration-500 hover:scale-105 ${isDarkTheme ? 'bg-teal-800' : ''}`}>
+              <h3 className="text-2xl font-semibold text-white mb-4">Create a New Club</h3>
               <input
                 type="text"
-                placeholder="New Unique Group Name"
+                placeholder="Enter new club name"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                className="p-3 border border-teal-300 rounded-lg w-full mb-4 bg-teal-700 text-white focus:outline-none"
               />
               <input
                 type="text"
-                placeholder="New Group Name"
-                value={newGroupName}
+                placeholder="Enter your username"
+                value={newGroupUserName}
                 onChange={(e) => setNewGroupUserName(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                className="p-3 border border-teal-300 rounded-lg w-full mb-4 bg-teal-700 text-white focus:outline-none"
               />
               <input
                 type="text"
-                placeholder="University Name"
-                value ={UniversityName}
+                placeholder="Enter university name"
+                value={universityName}
                 onChange={(e) => setUniversityName(e.target.value)}
-                
-                className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                className="p-3 border border-teal-300 rounded-lg w-full mb-4 bg-teal-700 text-white focus:outline-none"
               />
-              <p>Inter college group?  
-              : <input
-                type= "checkbox"
-              />
-              </p>
-
-              <button onClick={addGroup} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
-                Add Group   
-              </button>
-              <button onClick={() => setIsCreateGroupModalOpen(false)} className="mt-4 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600">
-                Close 
-              </button>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={addGroup}
+                  className="bg-teal-600 text-white p-3 rounded-lg hover:bg-teal-700 transition duration-300"
+                >
+                  Create Group
+                </button>
+                <button
+                  onClick={() => setIsCreateGroupModalOpen(false)}
+                  className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition duration-300"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
