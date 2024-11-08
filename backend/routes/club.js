@@ -71,4 +71,15 @@ router.post('/userclubs', async (req, res) => {
       return res.status(500).json({ msg: "Server error" });
     }
   });  
+  router.get('/allclubs', async (req, res) => {
+    try {
+      const clubs = await Club.find({});
+
+      res.json(clubs); 
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+      res.status(500).json({ message: "Server error fetching clubs" }); // Handle errors with a response
+    }
+  });
+  
 module.exports = router;

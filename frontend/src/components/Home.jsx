@@ -13,7 +13,8 @@ function Home() {
   const [newGroupUserName, setNewGroupUserName] = useState('');
   const [universityName, setUniversityName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
+  const [allGroups, setAllGroups] = useState([]); 
+   const [isAvailableGroupsModalOpen, setIsAvailableGroupsModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
@@ -32,6 +33,16 @@ function Home() {
       return newTheme;
     });
   };
+  const fetchAllGroups = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/clubs/allclubs');
+      const data = await response.json(); 
+      setAllGroups(data); 
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 const findUserClubs = async()=>{
   const email = JSON.parse(localStorage.getItem('user')).email;
 const response = await fetch('http://localhost:3000/api/clubs/userclubs', {
@@ -89,10 +100,12 @@ useEffect(() => {
   const joinGroup = (group) => {
     setUserGroups((prevGroups) => [...prevGroups, group]);
   };
-
-  const filteredGroups = availableGroups.filter((group) =>
-    group.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const seeAllClubs = async()=>{
+  setIsAvailableGroupsModalOpen(true);
+  console.log("first")
+  await fetchAllGroups();
+  console.log("firs2t")
+}
 
   return (
     <>
@@ -123,7 +136,7 @@ useEffect(() => {
             <h2 className="text-lg font-semibold text-white mb-4">Sidebar</h2>
 
             <button
-              onClick={() => setIsAvailableGroupsModalOpen(true)}
+              onClick={seeAllClubs}
               className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black bg-teal-400'}  p-3 rounded-lg hover:bg-teal-500 mb-4 transition duration-300`}
             >
               See Available Clubs
@@ -168,14 +181,13 @@ useEffect(() => {
                 className="p-3 border border-teal-300 rounded-lg w-full mb-4 bg-teal-700 text-white focus:outline-none"
               />
               <div className="max-h-60 overflow-y-auto">
-                {filteredGroups.map((group) => (
+                {allGroups.map((group) => (
                   <div
-                    key={group.id}
+                    key={group.name}
                     className={`flex justify-between items-center mb-3 p-3 border border-teal-300 rounded-lg ${isDarkTheme ? 'bg-teal-700' : 'bg-teal-500'} hover:bg-teal-400 transition duration-300`}
                   >
                     <span className="text-white">{group.name}</span>
                     <button
-                      onClick={() => joinGroup(group)}
                       className="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition duration-300"
                     >
                       Join

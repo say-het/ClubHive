@@ -1,23 +1,7 @@
 const mongoose = require('mongoose');
 const Club = require("../models/Club.model");
 
-const messageSchema = new mongoose.Schema({
-    senderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',  
-        required: true
-    },
-    text: {
-        type: String,
-        required: true
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now
-    }
-}, {
-    _id: false 
-});
+
 
 const clubSchema = new mongoose.Schema({
     clubUniqueName: {
@@ -38,7 +22,10 @@ const clubSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    messages: [messageSchema],  
+    messages: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Msg'
+    }],  
     createdAt: {
         type: Date,
         default: Date.now
