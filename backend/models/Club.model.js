@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Club = require("../models/Club.model");
 
 const messageSchema = new mongoose.Schema({
     senderId: {

@@ -32,7 +32,27 @@ function Home() {
       return newTheme;
     });
   };
+const findUserClubs = async()=>{
+  const email = JSON.parse(localStorage.getItem('user')).email;
+const response = await fetch('http://localhost:3000/api/clubs/userclubs', {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email })  
+});
 
+
+if (response.ok) {
+  const data = await response.json();
+  const clubs = data.clubs;
+    setUserGroups(clubs)
+  console.log('Response data:', data);
+} else {
+  console.error('Error:', response.statusText);
+}
+}
+useEffect(() => {
+  findUserClubs(); // Trigger function on component mount
+}, []);
   const addGroup = async () => {
     if (newGroupName) {
       const newGroup = {
@@ -43,12 +63,14 @@ function Home() {
       setNewGroupName('');
       setIsCreateGroupModalOpen(false);
     }
-
+    const email = JSON.parse(localStorage.getItem('user')).email;
     const clubData = {
       newGroupUserName,
       newGroupName,
-      universityName
+      universityName,
+      email
     };
+    // console.log(name)
 
     try {
       const response = await fetch('http://localhost:3000/api/clubs/addclub', {
@@ -85,16 +107,11 @@ function Home() {
               ) : (
                 userGroups.map((group) => (
                   <div
-                    key={group.id}
+                    key={group}
                     className={`w-full sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6 ${isDarkTheme ? 'bg-teal-700' : 'bg-teal-500'} text-white rounded-lg shadow-md flex items-center justify-between p-4 my-4 transform transition duration-300 hover:scale-105`}
                   >
-                    <span>{group.name}</span>
-                    <button
-                      onClick={() => joinGroup(group)}
-                      className="bg-teal-600 hover:bg-teal-700 p-2 rounded-lg transition duration-300"
-                    >
-                      Join
-                    </button>
+                    <span>{group}</span>
+                    
                   </div>
                 ))
               )}
@@ -117,7 +134,14 @@ function Home() {
               className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black      bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
             >
               Create Group
+              </button>
+            <button
+              onClick={findUserClubs}
+              className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black      bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
+            >
+              fetch clubs
             </button>
+
 
             {/* Theme Switcher */}
             <div className="mt-4">
