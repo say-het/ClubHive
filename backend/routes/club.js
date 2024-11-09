@@ -99,5 +99,58 @@ router.post('/userclubs', async (req, res) => {
       res.status(500).json({ message: "Server error fetching clubs" }); // Handle errors with a response
     }
   });
+  router.post('/joinsomething', async (req, res) => {
+    try {
+      const { clubUniqueName, email, name } = req.body;
+      const userUpdate = { $push: { clubs: clubUniqueName } };
+      const user = await User.findOneAndUpdate({ email }, userUpdate, { new: true });
+      
+      const clubUpdate = { $push: { members: { name: name, email: email } } };
+      const club = await Club.findOneAndUpdate({ clubUniqueName }, clubUpdate, { new: true });
+      
+      console.log(clubUniqueName)
+      if (!user || !club) {
+        return res.status(404).json({ message: "User or club not found." });
+      }
+      
+        res.status(200).json({ message: "Successfully joined the club!", user, clubUniqueName:[club.clubUniqueName] });
+        
+      } catch (error) {
+        console.error("Error joining club:", error);
+        res.status(500).json({ message: "Server error joining club" });
+      }
+    });
+    router.post('/leave', async (req, res) => {
+      try {
+          // const { name, email, clubUniqueName } = req.body;
+          console.log("pio")
+          const name = req.body.name;
+          const email = req.body.email;
+          const clubUniqueName = req.body.clubname;
+          
+          console.log(name, email, clubUniqueName)
+          const club = await Club.findOneAndUpdate(
+              { clubUniqueName },
+              { $pull: { members: { name, email } } },
+              { new: true } 
+          );
+  
+          const user = await User.findOneAndUpdate(
+              { email },
+              { $pull: { clubs: clubUniqueName } },
+              { new: true }
+          );
+  
+          if (!club || !user) {
+              return res.status(404).json({ message: "Club or User not found" });
+          }
+  
+          res.status(200).json({ message: "Successfully left the club!" });
+  
+      } catch (error) {
+          console.error("Error leaving club:", error);
+          res.status(500).json({ message: "Server error while leaving the club" });
+      }
+  });
   
 module.exports = router;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import { auth } from '../firebase'; // Assuming you are using Firebase for user authentication
 import axios from 'axios'; // To make API calls
@@ -15,7 +15,7 @@ function Club() {
   const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false); // Added dark mode state
-
+const navigate = useNavigate();
   useEffect(() => {
     const fetchClub = async () => {
       try {
@@ -44,9 +44,23 @@ function Club() {
 
   const leaveGroup = async () => {
     try {
-      await axios.post(`/api/group/leave`, { userId: user.id });
+      // console.log(url)
+      const url = window.location.href;
+      const email = JSON.parse(localStorage.getItem('user')).email;
+      const name = JSON.parse(localStorage.getItem('user')).name;
+
+      const clubname = url.substring(url.lastIndexOf('/')+1)
+      await axios.post(`http://localhost:3000/api/clubs/leave`, {
+        name,
+        email,
+        clubname,
+      });
+console.log(name,email,clubname );
       alert("You have left the group.");
-      setIsModalOpen(false);
+      setIsModalOpen(false)
+      navigate('/home')
+      setMembers(members => members.filter(member => member.name !== name));
+
     } catch (error) {
       console.error("Error leaving group", error);
     }
@@ -65,7 +79,7 @@ function Club() {
                 // console.log(member.name)
                 // member = JSON.parse(member)
                 return (
-                  <li  className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
+                  <li key={member.email} className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
                   {member.name}
                 </li>
                 )
@@ -133,9 +147,9 @@ function Club() {
               onClick={leaveGroup}
               className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
             >
-              <Link to='/home'>
+              {/* <Link to='/home'> */}
                 Leave Group
-              </Link>
+              {/* </Link> */}
             </button>
             
             <button

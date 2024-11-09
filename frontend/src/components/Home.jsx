@@ -90,6 +90,7 @@ useEffect(() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(clubData)
       });
+      location.reload()
       if (!response.ok) {
         throw new Error('Failed to add group');
       }
@@ -97,10 +98,32 @@ useEffect(() => {
       console.error(error.message);
     }
   };
+  const joinGroup = async (group) => {
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) throw new Error("User not found in local storage");
+console.log(group)
+        const { email, name } = user;
+        const response = await fetch('http://localhost:3000/api/clubs/joinsomething', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clubUniqueName: group.clubUniqueName, email, name })
+        });
 
-  const joinGroup = (group) => {
-    setUserGroups((prevGroups) => [...prevGroups, group]);
-  };
+        if (!response.ok) {
+            throw new Error("Failed to join club");
+        }
+
+        const result = await response.json();
+        console.log(result.message);  // Success message from backend
+        setUserGroups([...result.clubUniqueName]);
+        location.reload()  // Update state as needed
+
+    } catch (error) {
+        console.log("Error joining group:", error);
+    }
+};
+
 const seeAllClubs = async()=>{
   setIsAvailableGroupsModalOpen(true);
   console.log("first")
@@ -192,6 +215,7 @@ const seeAllClubs = async()=>{
                   >
                     <span className="text-white">{group.name}</span>
                     <button
+                    onClick={()=>joinGroup(group)}
                       className="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition duration-300"
                     >
                       Join
