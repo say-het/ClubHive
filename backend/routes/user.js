@@ -17,6 +17,7 @@ router.post("/signup", async (req, res) => {
         firebaseUid,
         name,
         email,
+        // university,
       });
       await user.save();
       res.status(200).json({ msg: "User signedin successfully", user });

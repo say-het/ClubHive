@@ -176,7 +176,7 @@ const seeAllClubs = async()=>{
               Create Group
               </button>
             <button
-              onClick={findUserClubs}
+              onClick={findUserClubs} 
               className={`w-full ${isDarkTheme ? ' bg-teal-600' : 'text-black      bg-teal-400'} text-white p-3 rounded-lg hover:bg-teal-500 transition duration-300`}
             >
               fetch clubs

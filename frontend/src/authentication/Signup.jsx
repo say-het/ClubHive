@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { auth, googleProvider } from '../firebase'; // Ensure these providers are exported from firebase.js
+import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,7 +10,8 @@ function Signup() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [universityName, setUniversityName] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,34 +19,30 @@ function Signup() {
       alert("Passwords do not match!");
       return;
     }
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseToken = await userCredential.user.getIdToken();
       const user = userCredential.user;
 
-      await updateProfile(user, {
-        displayName: name,
-      });
-  
+      await updateProfile(user, { displayName: name });
+
       const userData = {
         firebaseToken,
         name,
         email,
       };
-  
+
       const response = await fetch("http://localhost:3000/api/users/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
-  
+
       if (response.ok) {
         console.log("User saved to MongoDB!");
-        
-        localStorage.setItem("user",JSON.stringify(userData));
-        navigate('/');
-        location.reload();
+        localStorage.setItem("user", JSON.stringify(userData));
+        setIsModalOpen(true); // Open the modal
       } else {
         console.error("Error saving user:", response.statusText);
       }
@@ -53,44 +50,49 @@ function Signup() {
       console.error("Error signing up:", error.message);
     }
   };
-  
+
   const handleGoogleSignIn = async () => {
     try {
-      const userCredentaials = await signInWithPopup(auth, googleProvider);
-      const firebaseToken = await userCredentaials.user.getIdToken();
-      
-      // const user = userCredentaials.user;
+      const userCredentials = await signInWithPopup(auth, googleProvider);
+      const firebaseToken = await userCredentials.user.getIdToken();
+      const user = userCredentials.user;
+      const name = user.displayName || 'Default Name';
+      const email = user.email;
 
-      const user = userCredentaials.user;
-    const name = user.displayName || 'Default Name'; 
-    const email = user.email;
-      
-      const UserData = {
+      const userData = {
         firebaseToken,
         name,
-        email
-      } 
-      const response = await fetch("http://localhost:3000/api/users/signup",{
+        email,
+      };
+
+      const response = await fetch("http://localhost:3000/api/users/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(UserData),
-      })
+        body: JSON.stringify(userData),
+      });
+
       if (response.ok) {
         console.log("User saved to MongoDB!");
-        localStorage.setItem("user",JSON.stringify(UserData));
-        location.reload();
-
+        localStorage.setItem("user", JSON.stringify(userData));
+        setIsModalOpen(true); // Open the modal
       } else {
         console.error("Error saving user:", response.statusText);
       }
-      console.log('Google sign-in successful');
-      navigate('/');
-
     } catch (error) {
       console.error('Google sign-in error:', error.message);
     }
   };
 
+  const handleSave = () => {
+    if (universityName) {
+      // Perform any additional saving logic if needed
+      console.log(`University Name: ${universityName}`);
+      setIsModalOpen(false);
+      navigate('/home'); // Navigate to /home after saving
+    } else {
+      alert("Please enter your university name.");
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -164,9 +166,39 @@ function Signup() {
           >
             Sign up with Google
           </button>
-          
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-blue-100 p-6 rounded-lg w-80 shadow-lg">
+            <h2 className="text-xl font-semibold text-blue-700 mb-4 text-center">Enter University Name</h2>
+            <input
+              type="text"
+              value={universityName}
+              onChange={(e) => setUniversityName(e.target.value)}
+              placeholder="University Name"
+              className="w-full p-2 border border-blue-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={handleSave}
+                className="bg-blue-600 text-white    px-4 py-2 rounded-md hover:bg-blue-700 transition"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
     </div>
   );
 }
