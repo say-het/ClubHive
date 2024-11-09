@@ -18,10 +18,18 @@ const clubSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    members: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
+    members:[
+        {
+        name: {
+            type: String,
+            required: true
+          },
+          email: {
+            type: String,
+            required: true
+          },}
+    ],
+      
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
         ref:'Msg'

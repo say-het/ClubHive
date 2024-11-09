@@ -17,7 +17,8 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/club" element={<Club />} /> {/* Club page with dynamic ID */}
+          <Route path="/clubs/:id" element={<Club />} />
+          
           </Routes>
     </Router>
   );

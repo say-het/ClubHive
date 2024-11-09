@@ -26,7 +26,7 @@ router.post('/addclub', async (req, res) => {
             clubUniqueName:newGroupUserName,
             name:newGroupName,
             universityName,
-            members:[user2]
+            members:[{name:user2.name, email:email}]
         });
         await newClub.save();
         // console.log(email)
@@ -59,13 +59,13 @@ router.post('/userclubs', async (req, res) => {
         clubs.map(async (clubUniqueName) => {
           const club = await Club.findOne({ clubUniqueName });
           
-          return club ? club.name : null;
+          return club;
         })
       );
   
-      const validClubs = allClubs.filter(club => club !== null);
-      console.log(validClubs);
-      return res.status(200).json({ msg: "Clubs Fetched", clubs: validClubs });
+      // const validClubs = allClubs.filter(club => club !== null);
+      // console.log(validClubs);
+      return res.status(200).json({ msg: "Clubs Fetched", clubs: allClubs });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ msg: "Server error" });
@@ -77,6 +77,24 @@ router.post('/userclubs', async (req, res) => {
 
       res.json(clubs); 
     } catch (error) {
+      console.error("Error fetching clubs:", error);
+      res.status(500).json({ message: "Server error fetching clubs" }); // Handle errors with a response
+    }
+  });
+  
+  router.post('/getclubmembers/:id', async (req, res) => {
+    try {
+      
+      const club = await Club.findOne({clubUniqueName:req.params.id});
+      if (!club) {
+        return res.status(404).json({ message: 'Club not found' });
+    }
+    console.log(club)
+    const members = club.members;
+    res.json({ members });
+
+    } 
+     catch (error) {
       console.error("Error fetching clubs:", error);
       res.status(500).json({ message: "Server error fetching clubs" }); // Handle errors with a response
     }

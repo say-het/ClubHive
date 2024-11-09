@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
+import { Link } from 'react-router-dom';
 
 function Home() {
   const [availableGroups, setAvailableGroups] = useState([
@@ -54,8 +55,8 @@ const response = await fetch('http://localhost:3000/api/clubs/userclubs', {
 
 if (response.ok) {
   const data = await response.json();
-  const clubs = data.clubs;
-    setUserGroups(clubs)
+  // const clubs = ;
+    setUserGroups([... data.clubs])
   console.log('Response data:', data);
 } else {
   console.error('Error:', response.statusText);
@@ -119,13 +120,16 @@ const seeAllClubs = async()=>{
                 <p className="text-gray-500">You haven't joined any groups yet.</p>
               ) : (
                 userGroups.map((group) => (
-                  <div
-                    key={group}
+                  <Link
+                    to={`/clubs/${group.clubUniqueName}`}
+                    key={group.clubUniqueName}
                     className={`w-full sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6 ${isDarkTheme ? 'bg-teal-700' : 'bg-teal-500'} text-white rounded-lg shadow-md flex items-center justify-between p-4 my-4 transform transition duration-300 hover:scale-105`}
                   >
-                    <span>{group}</span>
-                    
-                  </div>
+                    <button className="w-full text-left">
+                      {group.clubUniqueName}
+                      {/* <span>{group.name}</span> */}
+                    </button>
+                  </Link>
                 ))
               )}
             </div>

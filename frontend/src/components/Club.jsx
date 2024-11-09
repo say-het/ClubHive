@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import { auth } from '../firebase'; // Assuming you are using Firebase for user authentication
 import axios from 'axios'; // To make API calls
 import Modal from 'react-modal';
 
 function Club() {
+  const { id } = useParams(); // useParams should be called directly at the top level
+  const [club, setClub] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]); // Default to empty array
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -14,25 +17,23 @@ function Club() {
   const [darkMode, setDarkMode] = useState(false); // Added dark mode state
 
   useEffect(() => {
-    //temp data for vis, 
-    const mockMembers = [
-      { id: 1, name: 'Member 1' },
-      { id: 2, name: 'Member 2' },
-      { id: 3, name: 'Member 3' }
-    ];
-
-    const mockMessages = [
-      { id: 1, text: 'Welcome to the group!', sender: 'Member 1' },
-      { id: 2, text: 'Hi everyone!', sender: 'Member 2' },
-      { id: 3, text: 'Hello!', sender: 'Member 3' }
-    ];
-
-    // Set mock data into state
-    setMembers(mockMembers);
-    setMessages(mockMessages);
-
-    // Normally, you would fetch data here (like from a real API)
-  }, []);
+    const fetchClub = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`,{ method: 'POST' });
+        const data = await response.json();
+        // setClub(data); // Assuming you want to set the entire club object
+        // console.log(typeof data.members)
+        setMembers(data.members);
+        // console.log()
+        console.log(data.members)
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching club details:", error);
+        setLoading(false);
+      }
+    };
+    fetchClub();
+  }, [id]);
 
   const sendMessage = () => {
     if (newMessage) {
@@ -41,61 +42,11 @@ function Club() {
     }
   };  
 
-  // ACTUAL FETCHING ::::
-  // useEffect(() => {
-  //   // Fetch user info from localStorage or database
-  //   const fetchUser = async () => {
-  //     const currentUser = JSON.parse(localStorage.getItem("user"));
-  //     setUser(currentUser);
-
-  //     // Fetch members and messages from your MongoDB (replace with actual endpoints)
-  //     try {
-  //       const membersResponse = await axios.get('/api/group/members');
-  //       const messagesResponse = await axios.get('/api/group/messages');
-
-  //       // Log the response to ensure it’s an array
-  //       console.log("Members Response:", membersResponse.data);
-  //       console.log("Messages Response:", messagesResponse.data);
-
-  //       // Ensure we have an array of members before setting the state
-  //       if (Array.isArray(membersResponse.data)) {
-  //         setMembers(membersResponse.data);
-  //       } else {
-  //         setMembers([]); // Set an empty array if not in expected format
-  //       }
-
-  //       setMessages(messagesResponse.data || []); // Set messages or empty array
-  //     } catch (error) {
-  //       console.error("Error fetching group data", error);
-  //       setMembers([]); // In case of error, make sure it's an empty array
-  //       setMessages([]); // Make sure messages is empty if fetching fails
-  //     }
-  //   };
-
-  //   fetchUser();
-  // }, []);
-
-  // const sendMessage = async () => {
-  //   if (newMessage) {
-  //     try {
-  //       const response = await axios.post(`/api/group/messages`, {
-  //         text: newMessage,
-  //         sender: user.name, // Use user data for sender
-  //       });
-  //       setMessages([...messages, response.data]);
-  //       setNewMessage('');
-  //     } catch (error) {
-  //       console.error("Error sending message", error);
-  //     }
-  //   }
-  // };
-
   const leaveGroup = async () => {
     try {
       await axios.post(`/api/group/leave`, { userId: user.id });
-      // Update UI after the group is left (could redirect the user)
       alert("You have left the group.");
-      setIsModalOpen(false); // Close the modal
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error leaving group", error);
     }
@@ -108,14 +59,20 @@ function Club() {
         <div className={`w-1/3 p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'} border-r border-gray-200`}>
           <h2 className="text-xl font-bold mb-4">Members</h2>
           <ul className="space-y-2">
-            {Array.isArray(members) && members.length > 0 ? (
-              members.map((member) => (
-                <li key={member.id} className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
+            {members.length > 0 ? (
+              members.map((member) => 
+              {
+                // console.log(member.name)
+                // member = JSON.parse(member)
+                return (
+                  <li  className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
                   {member.name}
                 </li>
-              ))
+                )
+              }
+              )
             ) : (
-              <li>No members found.</li> // Display a message if no members
+              <li>No members found.</li>
             )}
           </ul>
           {/* Settings button to open modal */}
@@ -176,7 +133,7 @@ function Club() {
               onClick={leaveGroup}
               className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
             >
-            <Link to='/home'>
+              <Link to='/home'>
                 Leave Group
               </Link>
             </button>
@@ -196,7 +153,6 @@ function Club() {
           </div>
         </div>
       </Modal>
-
     </>
   );
 }
