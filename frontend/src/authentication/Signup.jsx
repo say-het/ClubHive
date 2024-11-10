@@ -13,6 +13,18 @@ function Signup() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [universityName, setUniversityName] = useState('');
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);  // Avatar modal
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const avatarLinks = [
+    'https://img.freepik.com/free-vector/young-man-with-glasses-illustration_1308-174706.jpg?t=st=1731232968~exp=1731236568~hmac=de16d89919804086b8545f032b2ec907789da65e4e37425935dece6ee265c2bd&w=740',
+    'https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-175961.jpg?t=st=1731232969~exp=1731236569~hmac=df952cfa52ec0dd8e5803e424d49a052ff84c3382a5e125c473573c637bd229e&w=740',
+    'https://img.freepik.com/free-vector/smiling-redhaired-cartoon-boy_1308-174709.jpg?t=st=1731232463~exp=1731236063~hmac=a9a05813b4c6b923d7e3486ce5020fd28f82c39aa114517aac7153e21fb48eef&w=740',
+    'https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-173524.jpg?t=st=1731232968~exp=1731236568~hmac=2df6f036003087e2ba608092483229c766f09453c5c5ad28c3aecfaf8190b099&w=740',
+    'https://img.freepik.com/free-vector/woman-with-braided-hair-illustration_1308-174675.jpg?t=st=1731232968~exp=1731236568~hmac=56626b5b9790fb5e77f6402b54dadce20d73a59c5ce7b7bfe4d08640d395c26e&w=740',
+    'https://img.freepik.com/free-vector/woman-floral-traditional-costume_1308-176159.jpg?t=st=1731232968~exp=1731236568~hmac=b2a47c674aad1918eb4ed80b70012b52d75fd803aaa76a1687899fed630a5980&w=740',
+    'https://img.freepik.com/free-vector/woman-traditional-costume_1308-175787.jpg?t=st=1731232524~exp=1731236124~hmac=042f91e146ed62a66fe2ed06020bba64868673110a5f2c7e6f315292a003a9d5&w=740'
+  ];
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,36 +96,64 @@ function Signup() {
     }
   };
 
-  const addUniToUser = async()=>{
-      const name  = JSON.parse(localStorage.getItem('user')).name;
-      const email  = JSON.parse(localStorage.getItem('user')).email;
-    const res = await axios.post('http://localhost:3000/api/university/addusertouni',{
-      universityName,
-      name,
-      email
-    })
-    const data = res.data;
-    setIsModalOpen(false);
-    navigate('/home');  
-    console.log(data);
-  }
+  // const addUniToUser = async()=>{
+  //     const name  = JSON.parse(localStorage.getItem('user')).name;
+  //     const email  = JSON.parse(localStorage.getItem('user')).email;
+  //   const res = await axios.post('http://localhost:3000/api/university/addusertouni',{
+  //     universityName,
+  //     name,
+  //     email
+  //   })
+  //   const data = res.data;
+  //   setIsModalOpen(false);
+  //   setIsSecondModalOpen(true); 
+  //   navigate('/home');  
+  //   console.log(data);
+  // }
+  const addUniToUser = async () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const name = user.name;
+    const email = user.email;
 
-  const handleSave = async () => {
-    if (universityName) {
-      const response = await fetch("http://localhost:3000/api/university/adduniname",{
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({universityName}),
+    try {
+    const res = await axios.post('http://localhost:3000/api/university/addusertouni',{
+    universityName,
+        name,
+        email,
       });
-      const data = await response.json();
-      console.log(data.msg);  
-      console.log(`University Name: ${universityName}`);
-      setIsModalOpen(false);
-      navigate('/home'); 
-    } else {
-      alert("Please enter your university name.");
+      console.log(res.data);
+      setIsModalOpen(false);       // Close initial modal
+      setIsAvatarModalOpen(true);   // Open avatar selection modal  
+      // navigate('/home');            
+    } catch (error) {
+      console.error('Error adding university to user:', error);
     }
   };
+
+  const handleAvatarSelect = (avatar) => {
+    setSelectedAvatar(avatar);
+    setIsAvatarModalOpen(false);
+    console.log('Selected Avatar:', avatar);
+    navigate('/home');
+
+  };
+
+  // const handleSave = async () => {
+  //   if (universityName) {
+  //     const response = await fetch("http://localhost:3000/api/university/adduniname",{
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({universityName}),
+  //     });
+  //     const data = await response.json();
+  //     console.log(data.msg);  
+  //     console.log(`University Name: ${universityName}`);
+  //     setIsModalOpen(false);
+  //     navigate('/home'); 
+  //   } else {
+  //     alert("Please enter your university name.");
+  //   }
+  // };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -219,7 +259,33 @@ function Signup() {
         </div>
       )}
 
-      
+{isAvatarModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-8 rounded-lg shadow-xl w-[30rem]"> {/* Increased width */}
+      <h2 className="text-xl font-semibold mb-6 text-center text-gray-800">Select an Avatar</h2>
+      <div className="grid grid-cols-3 gap-6 place-items-center mb-4"> {/* Increased columns to 3 */}
+        {avatarLinks.map((avatar, index) => (
+          <img
+            key={index}
+            src={avatar}
+            alt={`Avatar ${index + 1}`}
+            onClick={() => handleAvatarSelect(avatar)}
+            className="cursor-pointer w-24 h-24 rounded-full border-4 border-transparent shadow-lg transform transition-transform duration-300 hover:scale-125 hover:border-blue-400" 
+          />
+        ))}
+      </div>
+      <button
+        onClick={() => setIsAvatarModalOpen(false)}
+        className="block mx-auto bg-blue-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-600 transition"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 }

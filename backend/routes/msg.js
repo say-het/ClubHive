@@ -16,13 +16,10 @@ router.post('/sendmsg', async (req, res) => {
         });
         
         await msg.save();
-
+        console.log("lalalalalalalal ",clubUniqueId)
         // Update Club with new message reference
-        await Club.findOneAndUpdate(
-            { clubUniqueId }, 
-            { $push: { messages: msg._id } } // Assuming messages field stores message IDs
-        );
-        
+        const club =await Club.findOneAndUpdate({ clubUniqueName:clubUniqueId }, { $push: { messages: msg._id } });
+        // console.log(club)
         res.status(200).json({ msg: "Message saved" });
     } catch (error) {
         console.error("Error saving message:", error);
