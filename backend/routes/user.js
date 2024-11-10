@@ -35,7 +35,7 @@ router.post("/update-avatar", async (req, res) => {
 
   try {
     const user = await User.findOneAndUpdate(
-      { email:email },  
+      { email:email },    
       { $set:{profilePicture:profilePicture} }, 
     );
 
@@ -49,5 +49,22 @@ router.post("/update-avatar", async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
+
+router.post("/show-profile", async(req,res) => {
+
+  try{
+    const {email} = req.body;
+    const user = await User.findOne({email:email});
+    
+    const pfrl = user.profilePicture;
+    console.log(pfrl);
+    
+    res.status(200).json({ msg: "Avator uploaded successfully : ", pfrl });
+  } catch({error}){
+    console.log("error in fetching the url");
+    
+  }
+})
+
 
 module.exports = router;
