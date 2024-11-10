@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, createUserWithEmailAndPassword, updateProfile, revokeAccessToken } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";    
 
 function Signup() {
   const [name, setName] = useState('');
@@ -82,6 +83,20 @@ function Signup() {
       console.error('Google sign-in error:', error.message);
     }
   };
+
+  const addUniToUser = async()=>{
+      const name  = JSON.parse(localStorage.getItem('user')).name;
+      const email  = JSON.parse(localStorage.getItem('user')).email;
+    const res = await axios.post('http://localhost:3000/api/university/addusertouni',{
+      universityName,
+      name,
+      email
+    })
+    const data = res.data;
+    setIsModalOpen(false);
+    navigate('/home'); 
+    console.log(data);
+  }
 
   const handleSave = async () => {
     if (universityName) {
@@ -188,7 +203,7 @@ function Signup() {
             />
             <div className="flex justify-between mt-4">
               <button
-                onClick={handleSave}
+                onClick={addUniToUser}
                 className="bg-blue-600 text-white    px-4 py-2 rounded-md hover:bg-blue-700 transition"
               >
                 Save
