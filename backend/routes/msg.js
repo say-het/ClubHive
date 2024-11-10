@@ -26,5 +26,31 @@ router.post('/sendmsg', async (req, res) => {
         res.status(500).json({ msg: "Error saving message", error });
     }
 });
+router.get('/test',(req,res)=>{
+    res.send("OK")
+})
+router.post('/allmsg', async (req, res) => {
+    console.log("OK - Endpoint hit");
+    const { clubUniqueId } = req.body;
+
+    try {
+        // Find the club and populate only 'text' and 'name' from messages
+        const club = await Club.findOne({ clubUniqueName: clubUniqueId })
+            .populate({
+                path: 'messages',
+                select: 'text name'
+            });
+
+        if (!club) {
+            return res.status(404).json({ msg: "Club not found" });
+        }
+        const msgs = club.messages;
+        console.log(msgs)
+        res.status(200).json({ line: "Worked yay" ,msgs:msgs});
+    } catch (error) {
+        console.error("Error getting messages:", error);
+        res.status(500).json({ msg: "Error getting messages", error });
+    }
+});
 
 module.exports = router;

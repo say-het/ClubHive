@@ -27,6 +27,7 @@ function Club() {
   useEffect(() => {
     const fetchClub = async () => {
       try {
+        console.log(id)
         const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`, { method: 'POST' });
         const data = await response.json();
         setMembers(data.members);
@@ -38,6 +39,35 @@ function Club() {
     };
     fetchClub();
   }, [id]);
+  useEffect(() => {
+    const fetchMessages = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/api/msg/allmsg', {
+                clubUniqueId: id
+            });
+
+            // Access data directly from response.data
+            const data = response.data;
+            console.log(data);
+
+          setMessages((prevMessages) => [...prevMessages, data.msgs]);
+
+            if (response.status === 200) {
+                setMessages(data.msgs);  // Assuming 'msgs' holds the array of messages
+            } else {
+                console.error("Failed to fetch messages:", data.msg);
+            }
+
+            setLoading(false);
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+            setLoading(false);
+        }
+    };
+
+    fetchMessages();
+}, []); // Empty dependency array to load only on initial mount
+ // Empty dependency array to load only on initial mount
 
   // Setup socket connection and event listeners
   const socketRef = useRef(null);
@@ -65,14 +95,14 @@ function Club() {
     if (newMessage) {
       const messageData = {
         room: id,
-        message: newMessage,
-        username: name,
+        text: newMessage,
+        name: name,
       };
       try {
         await axios.post('http://localhost:3000/api/msg/sendmsg', {
-          name: messageData.username,
+          name: messageData.name,
           email,
-          text: messageData.message,
+          text: messageData.text,
           clubUniqueId: id,
         });
       } catch (error) {
@@ -134,8 +164,8 @@ function Club() {
             <div className={`flex-1 overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}>
               {messages.map((message, index) => (
                 <div key={index} className="mb-2">
-                  <strong>{message.username === name ? "You" : message.username}: </strong>
-                  <span>{message.message}</span>
+                  <strong>{message.name === name ? "You" : message.name}: </strong>
+                  <span>{message.text}</span>
                 </div>
               ))}
             </div>
