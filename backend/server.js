@@ -55,12 +55,13 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined room: ${room}`);
     socket.to(room).emit("user_joined", `${socket.id} has joined the chat`);
   });
-
   socket.on("send_message", (data) => {
-    const { room, message, username } = data;
-    console.log(`Message from ${username} in room ${room}: ${message}`);
-    socket.to(room).emit("receive_message", { username, message });
+    const { room, text, name } = data;
+    console.log(`Message from ${name} in room ${room}: ${text}`);
+    io.to(room).emit("receive_message", { name, text });
   });
+  
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);

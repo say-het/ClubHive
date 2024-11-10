@@ -50,7 +50,7 @@ function Club() {
             const data = response.data;
             console.log(data);
 
-          setMessages((prevMessages) => [...prevMessages, data.msgs]);
+          // setMessages((prevMessages) => [...prevMessages, data.msgs]);
 
             if (response.status === 200) {
                 setMessages(data.msgs);  // Assuming 'msgs' holds the array of messages
@@ -92,6 +92,7 @@ function Club() {
 
   // Send a message
   const sendMessage = async () => {
+    console.log("jaja")
     if (newMessage) {
       const messageData = {
         room: id,
@@ -109,7 +110,7 @@ function Club() {
         console.error("Failed to send message:", error);
       }
       socket.emit("send_message", messageData);
-      setMessages((prevMessages) => [...prevMessages, messageData]);
+      // setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage('');
     }
   };
