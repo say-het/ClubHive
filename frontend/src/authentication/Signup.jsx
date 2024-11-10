@@ -94,7 +94,7 @@ function Signup() {
     })
     const data = res.data;
     setIsModalOpen(false);
-    navigate('/home'); 
+    navigate('/home');  
     console.log(data);
   }
 
