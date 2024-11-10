@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { auth, googleProvider } from '../firebase';
-import { signInWithPopup, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, updateProfile, revokeAccessToken } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 function Signup() {
@@ -83,12 +83,18 @@ function Signup() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (universityName) {
-      // Perform any additional saving logic if needed
+      const response = await fetch("http://localhost:3000/api/university/adduniname",{
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({universityName}),
+      });
+      const data = await response.json();
+      console.log(data.msg);  
       console.log(`University Name: ${universityName}`);
       setIsModalOpen(false);
-      navigate('/home'); // Navigate to /home after saving
+      navigate('/home'); 
     } else {
       alert("Please enter your university name.");
     }

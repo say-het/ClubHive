@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/user');
 const clubRoutes = require('./routes/club');
+const uniRoutes = require('./routes/university');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
@@ -38,3 +39,5 @@ app.get('/', (req, res) => {
 });
 app.use('/api/users', userRoutes);
 app.use('/api/clubs', clubRoutes);
+app.use('/api/university',uniRoutes);
+

@@ -6,6 +6,7 @@ const universitySchema = new mongoose.Schema({
         unique:true,
         required:true,
     },
+    users: [{ type: String }],
     clubs: [{ type: String }],
 });
 module.exports = mongoose.model('University', universitySchema);
