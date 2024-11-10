@@ -29,4 +29,25 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 });
+
+router.post("/update-avatar", async (req, res) => {
+  const { email, profilePicture } = req.body;
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { email:email },  
+      { $set:{profilePicture:profilePicture} }, 
+    );
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.status(200).json({ msg: "Avatar updated successfully", user });
+  } catch (error) {
+    console.error("Error updating avatar:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 module.exports = router;

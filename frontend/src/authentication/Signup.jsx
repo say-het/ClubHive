@@ -130,10 +130,35 @@ function Signup() {
     }
   };
 
-  const handleAvatarSelect = (avatar) => {
+  const handleAvatarSelect = async(avatar) => {
     setSelectedAvatar(avatar);
     setIsAvatarModalOpen(false);
     console.log('Selected Avatar:', avatar);
+    
+    const  firebaseUid = JSON.parse(localStorage.getItem('user')).email;
+    try {
+      const response = await fetch('http://localhost:3000/api/users/update-avatar', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email, // Send the firebaseUid of the logged-in user
+          profilePicture: avatar, // Send the selected avatar URL
+        }),
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Avatar updated successfully:", result);
+        navigate('/home'); // Redirect or take action after updating the avatar
+      } else {
+        console.error("Error updating avatar:", result);
+      }
+    } catch (error) {
+      console.error("Error in updating avatar:", error);
+    }
+    
     navigate('/home');
 
   };

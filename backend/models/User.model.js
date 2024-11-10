@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
   profilePicture: String,
   bio: String,
   interests: [String],
-  
   clubs: [String],
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 }, { timestamps: true }
