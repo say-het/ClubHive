@@ -169,7 +169,7 @@ function Club() {
                   message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
               }`}
           >
-              <strong>{message.name === name ? "You" : message.name}: </strong>
+              <strong>{message.name === name ? "You" : message.name}:  </strong>
               <span>{message.text}</span>
           </div>
               ))}
