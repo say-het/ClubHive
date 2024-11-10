@@ -163,10 +163,15 @@ function Club() {
             {/* Messages */}
             <div className={`flex-1 overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}>
               {messages.map((message, index) => (
-                <div key={index} className="mb-2">
-                  <strong>{message.name === name ? "You" : message.name}: </strong>
-                  <span>{message.text}</span>
-                </div>
+<div
+              key={index}
+              className={`mb-2 p-2 rounded-lg max-w-xs ${
+                  message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
+              }`}
+          >
+              <strong>{message.name === name ? "You" : message.name}: </strong>
+              <span>{message.text}</span>
+          </div>
               ))}
             </div>
 

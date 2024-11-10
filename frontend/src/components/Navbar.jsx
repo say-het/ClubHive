@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from '../firebase';
+import axios from 'axios';
 
 function Navbar() {
   
   const [heading, setHeading] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const avatarUrl = user.profilePicture || "https://via.placeholder.com/40";
+  const [avatarUrl,setUrl] = useState('');
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -29,6 +32,27 @@ function Navbar() {
       console.error("Error logging out:", e);
     }
   };
+  const profilepicture = async () => {
+    try {
+      const email = JSON.parse(localStorage.getItem('user')).email;
+      const prfl = await axios.post('http://localhost:3000/api/users/show-profile', { email });
+      
+      // Access the profile picture URL directly from `prfl.data`
+      // console.log(prfl.data.profilePicture);
+      
+      const profileUrl = prfl.data.pfrl || "https://via.placeholder.com/40"; // Fallback to placeholder
+      setUrl(profileUrl);
+  
+      console.log(profileUrl);  // Check the URL in the console
+    } catch (error) {
+      console.log("Trouble fetching the profile picture", error); // Log the full error object for debugging
+    }
+  };
+  
+  // Call this function inside a `useEffect` to run it when the component mounts
+  useEffect(() => {
+    profilepicture();
+  }, []);
 
   return (
     <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
@@ -83,8 +107,8 @@ function Navbar() {
         {/* Avatar */}
         {isLoggedIn && (
           <div className="ml-4">
-            <img
-              src="https://via.placeholder.com/40"
+            <img                  
+              src={avatarUrl}
               alt="User Avatar"
               className="w-10 h-10 rounded-full"
             />
