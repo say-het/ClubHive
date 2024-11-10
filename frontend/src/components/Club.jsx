@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import io from "socket.io-client";
 import axios from 'axios';
 
-const socket = io("http://localhost:3000"); // Initialize the socket connection only once
+// Initialize socket connection inside a useEffect
+let socket = io("http://localhost:3000");
+// let socket;
+
 
 function Club() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const name = user?.name;
+  const email = user?.email;
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
@@ -15,9 +22,8 @@ function Club() {
   const [newMessage, setNewMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const navigate = useNavigate();
-  const name = JSON.parse(localStorage.getItem('user')).name;
 
+  // Fetch club members
   useEffect(() => {
     const fetchClub = async () => {
       try {
@@ -33,49 +39,59 @@ function Club() {
     fetchClub();
   }, [id]);
 
+  // Setup socket connection and event listeners
+  const socketRef = useRef(null);
+
   useEffect(() => {
-    // Join room when component mounts
-    socket.emit("join_room", id);
-
-    // Listen for incoming messages
-    socket.on("receive_message", (data) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-    });
-
-    // Cleanup socket connection and listeners on component unmount
-    return () => {
-      socket.off("receive_message"); // Remove specific listener
-      socket.emit("leave_room", id); // Optional: leave room on unmount
-    };
+      if (!socketRef.current) {
+          socketRef.current = io("http://localhost:3000");
+      }
+      socketRef.current.emit("join_room", id);
+  
+      const handleReceiveMessage = (data) => {
+          setMessages((prevMessages) => [...prevMessages, data]);
+      };
+  
+      socketRef.current.on("receive_message", handleReceiveMessage);
+  
+      return () => {
+          socketRef.current.off("receive_message", handleReceiveMessage);
+          socketRef.current.emit("leave_room", id);
+      };
   }, [id]);
 
-const sendMessage = () => {
-  const name = JSON.parse(localStorage.getItem('user')).name;
-  if (newMessage) {
-    const messageData = {
-      room: id,
-      message: newMessage,
-      username: name,
-    };
-    socket.emit("send_message", messageData);
-    
-    // Update local message state using the functional form of setMessages
-    setMessages((prevMessages) => [...prevMessages, messageData]);
-    setNewMessage('');
-  }
-};
+  // Send a message
+  const sendMessage = async () => {
+    if (newMessage) {
+      const messageData = {
+        room: id,
+        message: newMessage,
+        username: name,
+      };
+      try {
+        await axios.post('http://localhost:3000/api/msg/sendmsg', {
+          name: messageData.username,
+          email,
+          text: messageData.message,
+          clubUniqueId: id,
+        });
+      } catch (error) {
+        console.error("Failed to send message:", error);
+      }
+      socket.emit("send_message", messageData);
+      setMessages((prevMessages) => [...prevMessages, messageData]);
+      setNewMessage('');
+    }
+  };
 
+  // Leave group
   const leaveGroup = async () => {
     try {
-      const email = JSON.parse(localStorage.getItem('user')).email;
-      const name = JSON.parse(localStorage.getItem('user')).name;
-
       await axios.post(`http://localhost:3000/api/clubs/leave`, {
         name,
         email,
         clubname: id,
       });
-
       alert("You have left the group.");
       setIsModalOpen(false);
       navigate('/home');
@@ -118,7 +134,7 @@ const sendMessage = () => {
             <div className={`flex-1 overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}>
               {messages.map((message, index) => (
                 <div key={index} className="mb-2">
-                  <strong>{message.username==name?"You":message.username}: </strong>
+                  <strong>{message.username === name ? "You" : message.username}: </strong>
                   <span>{message.message}</span>
                 </div>
               ))}

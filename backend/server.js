@@ -6,9 +6,8 @@ const mongoose = require("mongoose");
 const userRoutes = require('./routes/user');
 const clubRoutes = require('./routes/club');
 const uniRoutes = require('./routes/university');
+const msgRoutes = require('./routes/msg');
 const cors = require("cors");
-// require('dotenv').config();
-// dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -26,17 +25,13 @@ app.use(bodyParser.json());
 app.use('/api/users', userRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/university', uniRoutes);
+app.use('/api/msg', msgRoutes);
 
 // MongoDB connection
 const uri = process.env.URI;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("Connected to MongoDB Atlas with Mongoose");
-
-    // Start the server only after MongoDB is connected
-    server.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
   })
   .catch(error => {
     console.error("Error connecting to MongoDB:", error);
@@ -70,4 +65,9 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
+});
+
+// Start the server after setting up socket connections
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

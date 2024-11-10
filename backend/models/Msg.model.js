@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 
-
 const messageSchema = new mongoose.Schema({
     senderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',  
+        type:String,  
         required: true
     },
+    name: {type: String},
     text: {
         type: String,
         required: true
@@ -16,6 +15,6 @@ const messageSchema = new mongoose.Schema({
         default: Date.now
     }
 }, {
-    _id: false 
+    _id: true 
 });
 module.exports = mongoose.model('Msg', messageSchema);
