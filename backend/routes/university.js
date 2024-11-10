@@ -26,12 +26,12 @@ const uniUpdate = await University.findOneAndUpdate({univesity:universityName},{
         //     { new: true }
         // );
 
-        console.log(uniUpdate);
+        // console.log(uniUpdate);
             if (!uniUpdate) {
             
             return res.status(404).json({ msg: "University not found" });
         }
-        console.log(name,email,universityName);
+        // console.log(name,email,universityName);
 
         // Update the user's university field
 const userUpdate = await User.findOneAndUpdate({email:email},{ $set: { uniname: universityName } });

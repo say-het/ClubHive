@@ -32,7 +32,7 @@ router.post('/addclub', async (req, res) => {
         // console.log(email)
         const update = { $push: { clubs: newGroupUserName } };          
         let user = await User.findOneAndUpdate(filter, update, { new: true });  
-        console.log(user);  
+        // console.log(user);  
         
         
         console.log("Club added successfully");
@@ -89,7 +89,7 @@ router.post('/userclubs', async (req, res) => {
       if (!club) {
         return res.status(404).json({ message: 'Club not found' });
     }
-    console.log(club)
+    // console.log(club)
     const members = club.members;
     res.json({ members });
 

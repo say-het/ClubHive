@@ -1,31 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import Navbar from './Navbar';
-import { auth } from '../firebase'; // Assuming you are using Firebase for user authentication
-import axios from 'axios'; // To make API calls
+import { useNavigate, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
+import io from "socket.io-client";
+import axios from 'axios';
+
+const socket = io("http://localhost:3000"); // Initialize the socket connection only once
 
 function Club() {
-  const { id } = useParams(); // useParams should be called directly at the top level
+  const { id } = useParams();
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [members, setMembers] = useState([]); // Default to empty array
+  const [members, setMembers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // Added dark mode state
-const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
+  const navigate = useNavigate();
+  const name = JSON.parse(localStorage.getItem('user')).name;
+
   useEffect(() => {
     const fetchClub = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`,{ method: 'POST' });
+        const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`, { method: 'POST' });
         const data = await response.json();
-        // setClub(data); // Assuming you want to set the entire club object
-        // console.log(typeof data.members)
         setMembers(data.members);
-        // console.log()
-        console.log(data.members)
         setLoading(false);
       } catch (error) {
         console.error("Error fetching club details:", error);
@@ -35,32 +33,53 @@ const navigate = useNavigate();
     fetchClub();
   }, [id]);
 
-  const sendMessage = () => {
-    if (newMessage) {
-      setMessages([...messages, { id: messages.length + 1, text: newMessage, sender: 'You' }]);
-      setNewMessage('');
-    }
-  };  
+  useEffect(() => {
+    // Join room when component mounts
+    socket.emit("join_room", id);
+
+    // Listen for incoming messages
+    socket.on("receive_message", (data) => {
+      setMessages((prevMessages) => [...prevMessages, data]);
+    });
+
+    // Cleanup socket connection and listeners on component unmount
+    return () => {
+      socket.off("receive_message"); // Remove specific listener
+      socket.emit("leave_room", id); // Optional: leave room on unmount
+    };
+  }, [id]);
+
+const sendMessage = () => {
+  const name = JSON.parse(localStorage.getItem('user')).name;
+  if (newMessage) {
+    const messageData = {
+      room: id,
+      message: newMessage,
+      username: name,
+    };
+    socket.emit("send_message", messageData);
+    
+    // Update local message state using the functional form of setMessages
+    setMessages((prevMessages) => [...prevMessages, messageData]);
+    setNewMessage('');
+  }
+};
 
   const leaveGroup = async () => {
     try {
-      // console.log(url)
-      const url = window.location.href;
       const email = JSON.parse(localStorage.getItem('user')).email;
       const name = JSON.parse(localStorage.getItem('user')).name;
 
-      const clubname = url.substring(url.lastIndexOf('/')+1)
       await axios.post(`http://localhost:3000/api/clubs/leave`, {
         name,
         email,
-        clubname,
+        clubname: id,
       });
-console.log(name,email,clubname );
-      alert("You have left the group.");
-      setIsModalOpen(false)
-      navigate('/home')
-      setMembers(members => members.filter(member => member.name !== name));
 
+      alert("You have left the group.");
+      setIsModalOpen(false);
+      navigate('/home');
+      setMembers((members) => members.filter((member) => member.name !== name));
     } catch (error) {
       console.error("Error leaving group", error);
     }
@@ -74,22 +93,15 @@ console.log(name,email,clubname );
           <h2 className="text-xl font-bold mb-4">Members</h2>
           <ul className="space-y-2">
             {members.length > 0 ? (
-              members.map((member) => 
-              {
-                // console.log(member.name)
-                // member = JSON.parse(member)
-                return (
-                  <li key={member.email} className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
+              members.map((member) => (
+                <li key={member.email} className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
                   {member.name}
                 </li>
-                )
-              }
-              )
+              ))
             ) : (
               <li>No members found.</li>
             )}
           </ul>
-          {/* Settings button to open modal */}
           <button
             onClick={() => setIsModalOpen(true)}
             className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
@@ -104,10 +116,10 @@ console.log(name,email,clubname );
           <div className="flex flex-col h-full">
             {/* Messages */}
             <div className={`flex-1 overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}>
-              {messages.map((message) => (
-                <div key={message.id} className="mb-2">
-                  <strong>{message.sender}: </strong>
-                  <span>{message.text}</span>
+              {messages.map((message, index) => (
+                <div key={index} className="mb-2">
+                  <strong>{message.username==name?"You":message.username}: </strong>
+                  <span>{message.message}</span>
                 </div>
               ))}
             </div>
@@ -147,11 +159,8 @@ console.log(name,email,clubname );
               onClick={leaveGroup}
               className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
             >
-              {/* <Link to='/home'> */}
-                Leave Group
-              {/* </Link> */}
+              Leave Group
             </button>
-            
             <button
               onClick={() => setDarkMode(!darkMode)}
               className={`mt-4 ml p-2 ${darkMode ? 'bg-yellow-500' : 'bg-gray-700'} text-white rounded-lg`}

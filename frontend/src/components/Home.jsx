@@ -149,7 +149,7 @@ const seeAllClubs = async()=>{
                     className={`w-full sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6 ${isDarkTheme ? 'bg-teal-700' : 'bg-teal-500'} text-white rounded-lg shadow-md flex items-center justify-between p-4 my-4 transform transition duration-300 hover:scale-105`}
                   >
                     <button className="w-full text-left">
-                      {group.clubUniqueName}
+                      {group.name}
                       {/* <span>{group.name}</span> */}
                     </button>
                   </Link>
