@@ -22,7 +22,13 @@ function Club() {
   const [newMessage, setNewMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const messageContainerRef = useRef(null);
 
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
   // Fetch club members
   useEffect(() => {
     const fetchClub = async () => {
@@ -91,7 +97,8 @@ function Club() {
   }, [id]);
 
   // Send a message
-  const sendMessage = async () => {
+  const sendMessage = async (e) => {
+    e.preventDefault();
     console.log("jaja")
     if (newMessage) {
       const messageData = {
@@ -162,22 +169,32 @@ function Club() {
           <h2 className="text-xl font-bold mb-4">Group Chat</h2>
           <div className="flex flex-col h-full">
             {/* Messages */}
-            <div className={`flex-1 overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}>
-              {messages.map((message, index) => (
-<div
-              key={index}
-              className={`mb-2 p-2 rounded-lg max-w-xs ${
-                  message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
-              }`}
-          >
-              <strong>{message.name === name ? "You" : message.name}:  </strong>
-              <span>{message.text}</span>
-          </div>
-              ))}
-            </div>
+            <div
+  ref={messageContainerRef}
+  className={`overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}
+  style={{
+    maxHeight: '520px',  // Set the max-height to ensure it doesn’t expand beyond this size
+    height: '100%',      // You can also try setting a fixed height if this still doesn't work
+    overflowY: 'auto',
+  }}
+>
+  {messages.map((message, index) => (
+    <div
+      key={index}
+      className={`mb-2 p-2 rounded-lg max-w-xs ${
+        message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
+      }`}
+    >
+      <strong>{message.name === name ? "You" : message.name}:  </strong>
+      <span>{message.text}</span>
+    </div>
+  ))}
+</div>
+
+
 
             {/* Input for new message */}
-            <div className="flex items-center space-x-2">
+            <form onSubmit={sendMessage} className="flex items-center space-x-2">
               <input
                 type="text"
                 placeholder="Type your message..."
@@ -186,12 +203,12 @@ function Club() {
                 className={`flex-1 p-2 border ${darkMode ? 'text-black border-gray-600' : 'border-gray-300'} rounded-lg`}
               />
               <button
-                onClick={sendMessage}
+                type="submit"
                 className={`p-2 ${darkMode ? 'bg-blue-600' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
               >
                 Send
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
