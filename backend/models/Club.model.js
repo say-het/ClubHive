@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 const Club = require("../models/Club.model");
-
-
-
 const clubSchema = new mongoose.Schema({
     clubUniqueName: {
         type: String,
