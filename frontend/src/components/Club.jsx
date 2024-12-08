@@ -13,6 +13,7 @@ const Club = () => {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [eventImages, setEventImages] = useState([]);
+  const [clubDescription,setClubDescription] = useState('');
 
   useEffect(() => {
     const fetchClub = async () => {
@@ -21,6 +22,7 @@ const Club = () => {
         const data = await response.json();
         setMembers(data.members);
         setLoading(false);
+        setClubDescription(data.clubDescription);
       } catch (error) {
         console.error("Error fetching club details:", error);
         setLoading(false);
@@ -61,7 +63,7 @@ const Club = () => {
           <Card className="bg-white border border-gray-300 p-4 rounded-lg shadow-md">
             <CardContent>
               <Typography variant="h6" gutterBottom>About the Club</Typography>
-              <Typography>Description of the club goes here. You can add more details about the club's mission and activities.</Typography>
+              <Typography>{clubDescription}</Typography>
             </CardContent>
           </Card>
 

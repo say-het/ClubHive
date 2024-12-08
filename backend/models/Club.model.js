@@ -6,6 +6,9 @@ const clubSchema = new mongoose.Schema({
         // required: true,
         // unique: true
     },
+    clubDescription: {
+        type: String,
+    },
     name: {
         type: String,
         // required: true,
@@ -48,8 +51,6 @@ clubSchema.pre('save', function (next) {
 
 module.exports = mongoose.model('Club', clubSchema);
 
-
-
 // const mongoose = require('mongoose');
 // const Msg = require("../models/Msg.model");
 
@@ -68,6 +69,25 @@ module.exports = mongoose.model('Club', clubSchema);
 //         type: String,
 //         required: true
 //     },
+//     description: {
+//         type: String,
+//         default: '',  // The description of the club
+//         required: false
+//     },
+//     committeeMembers: [{
+//         name: {
+//             type: String,
+//             required: true
+//         },
+//         role: {
+//             type: String,
+//             required: true
+//         },
+//         contact: {
+//             type: String,  // You can store email, phone, etc.
+//             required: true
+//         }
+//     }],
 //     members: [
 //         {
 //             name: {
@@ -80,7 +100,7 @@ module.exports = mongoose.model('Club', clubSchema);
 //             },
 //             role: {
 //                 type: String,
-//                 enum: ['admin', 'member', 'moderator'],  // Possible roles
+//                 enum: ['admin', 'member', 'moderator'],
 //                 default: 'member'
 //             },
 //             tags: {
@@ -156,3 +176,4 @@ module.exports = mongoose.model('Club', clubSchema);
 // };
 
 // module.exports = mongoose.model('Club', clubSchema);
+

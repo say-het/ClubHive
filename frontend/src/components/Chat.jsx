@@ -170,29 +170,26 @@ function Chat() {
           <div className="flex flex-col h-full">
             {/* Messages */}
             <div
-  ref={messageContainerRef}
-  className={`overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}
-  style={{
-    maxHeight: '520px',  // Set the max-height to ensure it doesn’t expand beyond this size
-    height: '100%',      // You can also try setting a fixed height if this still doesn't work
-    overflowY: 'auto',
-  }}
->
-  {messages.map((message, index) => (
-    <div
-      key={index}
-      className={`mb-2 p-2 rounded-lg max-w-xs ${
-        message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
-      }`}
-    >
-      <strong>{message.name === name ? "You" : message.name}:  </strong>
-      <span>{message.text}</span>
-    </div>
-  ))}
-</div>
-
-
-
+            ref={messageContainerRef}
+            className={`overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}
+            style={{
+                maxHeight: '520px',  // Set the max-height to ensure it doesn’t expand beyond this size
+                height: '100%',      // You can also try setting a fixed height if this still doesn't work
+                overflowY: 'auto',
+            }}
+            >
+            {messages.map((message, index) => (
+                <div
+                key={index}
+                className={`mb-2 p-2 rounded-lg max-w-xs ${
+                    message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
+                }`}
+                >
+                <strong>{message.name === name ? "You" : message.name}:  </strong>
+                <span>{message.text}</span>
+                </div>
+            ))}
+            </div>
             {/* Input for new message */}
             <form onSubmit={sendMessage} className="flex items-center space-x-2">
               <input

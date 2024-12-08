@@ -5,7 +5,7 @@ const User = require("../models/User.model");
 
 router.post('/addclub', async (req, res) => {
     try {
-        const { newGroupUserName, newGroupName, universityName, email } = req.body;
+        const { newGroupUserName, newGroupName, newGroupDescription, universityName, email } = req.body;
 
         // Check if required fields are provided
         if (!newGroupUserName || !newGroupName || !universityName) {
@@ -24,6 +24,7 @@ router.post('/addclub', async (req, res) => {
 
         const newClub = new Club({
             clubUniqueName:newGroupUserName,
+            clubDesrcription:newGroupDescription,
             name:newGroupName,
             universityName,
             members:[{name:user2.name, email:email}]
@@ -84,21 +85,21 @@ router.post('/userclubs', async (req, res) => {
   
   router.post('/getclubmembers/:id', async (req, res) => {
     try {
-      
       const club = await Club.findOne({clubUniqueName:req.params.id});
       if (!club) {
         return res.status(404).json({ message: 'Club not found' });
     }
     // console.log(club)
     const members = club.members;
-    res.json({ members });
-
+    const clubDescription = club.clubDescription;
+    res.json({ members,clubDescription});
     } 
      catch (error) {
       console.error("Error fetching clubs:", error);
       res.status(500).json({ message: "Server error fetching clubs" }); // Handle errors with a response
     }
   });
+  
   router.post('/joinsomething', async (req, res) => {
     try {
       const { clubUniqueName, email, name } = req.body;
