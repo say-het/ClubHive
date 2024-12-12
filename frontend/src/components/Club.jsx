@@ -22,8 +22,7 @@ const Club = () => {
   const [promotionType, setPromotionType] = useState(''); // Track promotion type
   const [openRemoveAdminDialog, setOpenRemoveAdminDialog] = useState(false); // State to control the remove admin dialog
   const [adminToRemove, setAdminToRemove] = useState(''); // To track the admin being removed
-  const [selectedAction, setSelectedAction] = useState(null); // Track which action is selected
-
+  
   useEffect(() => {
     const fetchClub = async () => {
       try {
@@ -47,9 +46,7 @@ const Club = () => {
   };
 
   const isSupremeAdmin = email === supremeAdmin;  // Check if the current user is the supreme admin
-  const getAdmins = () =>{
-    
-  }
+
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const imageURLs = files.map(file => URL.createObjectURL(file));
@@ -275,57 +272,42 @@ const Club = () => {
         </Button>
       )}
 
-<Modal
-      open={openModal}
-      onClose={handleModalClose}
-      closeAfterTransition
-      BackdropComponent={Backdrop}
-      BackdropProps={{
-        timeout: 500,
-      }}
-    >
-      <Fade in={openModal}>
-        <Box
-          sx={{
+      <Modal
+        open={openModal}
+        onClose={handleModalClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={openModal}>
+          <Box sx={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 500,
+            width: 400,
             bgcolor: 'background.paper',
-            borderRadius: 2,
+            border: '2px solid #000',
             boxShadow: 24,
             p: 4,
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              boxShadow: '0 0 15px rgba(0,0,0,0.2)',
-            },
-          }}
-        >
-          <Typography variant="h6" align="center" gutterBottom>
-            Manage Club
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            <strong>Supreme Admin:</strong> {supremeAdmin}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            <strong>Admins:</strong> {admins.join(', ')}
-          </Typography>
-
-          {/* Conditional rendering based on which button is clicked */}
-          {selectedAction === 'admin' && (
+          }}>
+            <Typography variant="h6" gutterBottom>
+              Manage Club
+            </Typography>
+            <Typography variant="body1">
+              Supreme Admin: {supremeAdmin}
+            </Typography>
+            <Typography variant="body1">
+              Admins: {admins.join(', ')}
+            </Typography>
             <FormControl fullWidth sx={{ mt: 2 }}>
               <InputLabel id="select-member-label">Select Member</InputLabel>
               <Select
                 labelId="select-member-label"
                 value={selectedMember}
-                onChange={(e) => setSelectedMember(e.target.value)}
-                sx={{
-                  '& .MuiSelect-root': {
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 1,
-                  },
-                }}
+                onChange={handleMemberSelect}
               >
                 {members.map((member, index) => (
                   <MenuItem key={index} value={member.email}>
@@ -334,115 +316,39 @@ const Club = () => {
                 ))}
               </Select>
             </FormControl>
-          )}
-
-          {selectedAction === 'adminActions' && (
-            <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel id="select-admin-label">Select Admin</InputLabel>
-              <Select
-                labelId="select-admin-label"
-                value={selectedMember}
-                onChange={(e) => setSelectedMember(e.target.value)}
-                sx={{
-                  '& .MuiSelect-root': {
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 1,
-                  },
-                }}
-              >
-                {admins.map((admin, index) => (
-                  <MenuItem key={index} value={admin}>
-                    {admin}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-
-          {/* Action Buttons */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {
-                setSelectedAction('admin');
-              }}
-              sx={{
-                textTransform: 'none',
-                padding: '10px 20px',
-                borderRadius: 2,
-                '&:hover': {
-                  backgroundColor: '#1976d2',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                },
-              }}
+              sx={{ mt: 2 }}
+              onClick={() => handleOpenDialog('admin')}
             >
               Promote to Admin
             </Button>
-
             <Button
               variant="contained"
-              color="secondary"
-              onClick={() => {
-                setSelectedAction('adminActions');
-              }}
-              sx={{
-                textTransform: 'none',
-                padding: '10px 20px',
-                borderRadius: 2,
-                '&:hover': {
-                  backgroundColor: '#d32f2f',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                },
-              }}
+              color="error"
+              sx={{ mt: 2, ml: 2 }}
+              onClick={() => handleOpenDialog('supremeAdmin')}
             >
               Promote to Supreme Admin
             </Button>
-
-            <Button
-              variant="outlined"
-              onClick={handleModalClose}
-              sx={{
-                textTransform: 'none',
-                padding: '10px 20px',
-                borderRadius: 2,
-                borderColor: '#1976d2',
-                color: '#1976d2',
-                '&:hover': {
-                  backgroundColor: '#1976d2',
-                  color: '#fff',
-                  borderColor: '#1976d2',
-                },
-              }}
-            >
+            <Button variant="contained" sx={{ mt: 2 }} onClick={handleModalClose}>
               Close
             </Button>
-
             <Button
-              variant="outlined"
-              color="error"
-              onClick={() => {
-                setSelectedAction('adminActions');
-              }}
-              sx={{
-                textTransform: 'none',
-                padding: '10px 20px',
-                borderRadius: 2,
-                borderColor: '#d32f2f',
-                color: '#d32f2f',
-                '&:hover': {
-                  backgroundColor: '#d32f2f',
-                  color: '#fff',
-                  borderColor: '#d32f2f',
-                },
-              }}
-            >
-              Remove Admin
-            </Button>
-          </Box>
+            variant="contained"
+            color="error"
+            sx={{ mt: 2, ml: 2 }}
+            onClick={() => handleOpenRemoveAdminDialog(selectedMember)} // Pass the selected member's email to remove
+          >
+            Remove Admin
+          </Button>
 
-          {/* Confirmation Dialog for Removing Admin */}
-          <Dialog open={openRemoveAdminDialog} onClose={() => setOpenRemoveAdminDialog(false)}>
+          // Confirmation Dialog for Removing Admin
+          <Dialog
+            open={openRemoveAdminDialog}
+            onClose={() => setOpenRemoveAdminDialog(false)}
+          >
             <DialogTitle>Confirm Removal</DialogTitle>
             <DialogContent>
               <DialogContentText>
@@ -458,10 +364,9 @@ const Club = () => {
               </Button>
             </DialogActions>
           </Dialog>
-        </Box>
-      </Fade>
-    </Modal>
-
+          </Box>
+        </Fade>
+      </Modal>
 
       {/* Confirmation Dialog */}
       <Dialog
