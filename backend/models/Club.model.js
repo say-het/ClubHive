@@ -1,46 +1,45 @@
 const mongoose = require('mongoose');
-const Club = require("../models/Club.model");
+
 const clubSchema = new mongoose.Schema({
     clubUniqueName: {
         type: String,
-        // required: true,
-        // unique: true
     },   
     name: {
         type: String,
-        // required: true,
-        // unique: true
     },
-    clubType:{
-        // true :  if club is public
-        // false: if club is private
-        type : Boolean,
-        default:false
+    clubType: {
+        type: Boolean, // true: public, false: private
+        default: false
     },
     clubDescription: {
         type: String,
-        default:'No Value or error in fetching'
+        default: 'No Value or error in fetching'
     },
     universityName: {
         type: String,
         required: true
     },
-    members:[
-        {
+    members: [{
         name: {
             type: String,
             required: true
-          },
-          email: {
+        },
+        email: {
             type: String,
             required: true
-          },}
-    ],
-      
+        },
+    }],
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'Msg'
-    }],  
+        ref: 'Msg'
+    }],
+    supremeAdmin: {
+        type: String, // Email of the supreme admin
+        required: true
+    },
+    admins: [{
+        type: String // List of emails of other admins
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -57,129 +56,3 @@ clubSchema.pre('save', function (next) {
 });
 
 module.exports = mongoose.model('Club', clubSchema);
-
-// const mongoose = require('mongoose');
-// const Msg = require("../models/Msg.model");
-
-// const clubSchema = new mongoose.Schema({
-//     clubUniqueName: {
-//         type: String,
-//         // required: true,
-//         // unique: true
-//     },
-//     name: {
-//         type: String,
-//         // required: true,
-//         // unique: true
-//     },
-//     universityName: {
-//         type: String,
-//         required: true
-//     },
-//     description: {
-//         type: String,
-//         default: '',  // The description of the club
-//         required: false
-//     },
-//     committeeMembers: [{
-//         name: {
-//             type: String,
-//             required: true
-//         },
-//         role: {
-//             type: String,
-//             required: true
-//         },
-//         contact: {
-//             type: String,  // You can store email, phone, etc.
-//             required: true
-//         }
-//     }],
-//     members: [
-//         {
-//             name: {
-//                 type: String,
-//                 required: true
-//             },
-//             email: {
-//                 type: String,
-//                 required: true
-//             },
-//             role: {
-//                 type: String,
-//                 enum: ['admin', 'member', 'moderator'],
-//                 default: 'member'
-//             },
-//             tags: {
-//                 type: [String],  // Tags for special members
-//                 default: []
-//             }
-//         }
-//     ],
-//     creator: {
-//         name: {
-//             type: String,
-//             required: true
-//         },
-//         email: {
-//             type: String,
-//             required: true
-//         }
-//     },
-//     messages: [{
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'Msg'
-//     }],
-//     createdAt: {
-//         type: Date,
-//         default: Date.now
-//     },
-//     updatedAt: {
-//         type: Date,
-//         default: Date.now
-//     }
-// });
-
-// // Set the updatedAt field before saving the document
-// clubSchema.pre('save', function (next) {
-//     this.updatedAt = Date.now();
-//     next();
-// });
-
-// // Method to add a new admin
-// clubSchema.methods.addAdmin = function (email) {
-//     const member = this.members.find(m => m.email === email);
-//     if (member) {
-//         member.role = 'admin';  // Change member's role to admin
-//         this.updatedAt = Date.now(); // Update timestamp
-//         return this.save();
-//     } else {
-//         throw new Error('Member not found');
-//     }
-// };
-
-// // Method to remove admin role
-// clubSchema.methods.removeAdmin = function (email) {
-//     const member = this.members.find(m => m.email === email);
-//     if (member && member.role === 'admin') {
-//         member.role = 'member';  // Change admin's role to member
-//         this.updatedAt = Date.now(); // Update timestamp
-//         return this.save();
-//     } else {
-//         throw new Error('Admin not found');
-//     }
-// };
-
-// // Method to assign tags to a member
-// clubSchema.methods.assignTags = function (email, tags) {
-//     const member = this.members.find(m => m.email === email);
-//     if (member) {
-//         member.tags = tags;  // Assign tags to member
-//         this.updatedAt = Date.now(); // Update timestamp
-//         return this.save();
-//     } else {
-//         throw new Error('Member not found');
-//     }
-// };
-
-// module.exports = mongoose.model('Club', clubSchema);

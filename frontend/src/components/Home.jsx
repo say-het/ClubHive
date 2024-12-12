@@ -205,8 +205,7 @@ function Home() {
                           sx={{
                             height: '100%',
                             textTransform: 'none',
-                            bgcolor: 'primary.main',
-                            color: 'white',
+                            bgcolor: isDarkTheme ? 'green' : 'primary.main',                            color: 'white',
                           }}
                         >
                           {group.name}

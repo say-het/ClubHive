@@ -158,7 +158,7 @@ function Chat() {
           </ul>
           <button
             onClick={() => setIsModalOpen(true)}
-            className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
+            className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-black rounded-lg hover:bg-red-600 focus:outline-none`}
           >
             Settings
           </button>
@@ -201,7 +201,7 @@ function Chat() {
               />
               <button
                 type="submit"
-                className={`p-2 ${darkMode ? 'bg-blue-600' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
+                className={`p-2 ${darkMode ? 'bg-blue-600' : 'bg-blue-500'} text-black rounded-lg hover:bg-blue-600`}
               >
                 Send
               </button>
