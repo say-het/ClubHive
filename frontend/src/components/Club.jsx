@@ -72,16 +72,62 @@ const Club = () => {
     setOpenDialog(false);
   };
 
-  const handleConfirmPromotion = () => {
-    if (promotionType === 'admin') {
-      console.log(`${selectedMember} promoted to Admin.`);
-      // Add backend logic to promote member to Admin
-    } else if (promotionType === 'supremeAdmin') {
-      console.log(`${selectedMember} promoted to Supreme Admin.`);
-      // Add backend logic to promote member to Supreme Admin
+  const handleConfirmPromotion = async () => {
+    try {
+      if (promotionType === 'supremeAdmin') {
+        const response = await fetch('http://localhost:3000/api/clubs/transferSupremeAdmin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            clubUniqueName: id, // Assuming `id` is the unique name of the club
+            currentSupremeAdmin: supremeAdmin,
+            newSupremeAdmin: selectedMember,
+          }),
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data.msg);
+          setSupremeAdmin(selectedMember);
+        } else {
+          console.error(data.msg);
+          alert(data.msg);
+        }
+      } else if (promotionType === 'admin') {
+        const response = await fetch('http://localhost:3000/api/clubs/addAdmin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            clubUniqueName: id, // The unique name of the club
+            supremeAdminEmail: supremeAdmin, // Assuming `supremeAdmin` is the email of the current supreme admin
+            newAdminEmail: selectedMember, // Email of the user to be promoted
+          }),
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data.msg);
+          // You might want to update the UI or the state to reflect the new admin status
+        } else {
+          console.error(data.msg);
+          alert(data.msg);
+        }
+      }
+  
+      setOpenDialog(false);
+      setOpenModal(false);
+  
+    } catch (error) {
+      console.error("Error promoting member:", error);
+      alert("An error occurred while promoting the member.");
     }
-    setOpenDialog(false);
   };
+  
+  
 
   if (loading) {
     return (
