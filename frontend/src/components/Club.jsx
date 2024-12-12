@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, Typography, Button, CircularProgress, Grid } from '@mui/material';
-import { Carousel } from 'react-responsive-carousel'; // For Carousel (you'll need to install this package)
+import { Card, CardContent, Typography, Button, CircularProgress, Grid, Box } from '@mui/material';
+import { Carousel } from 'react-responsive-carousel'; // For Carousel
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Carousel CSS
 
 const Club = () => {
@@ -13,7 +13,7 @@ const Club = () => {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [eventImages, setEventImages] = useState([]);
-  const [clubDescription,setClubDescription] = useState('');
+  const [clubDescription, setClubDescription] = useState('');
 
   useEffect(() => {
     const fetchClub = async () => {
@@ -21,8 +21,8 @@ const Club = () => {
         const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`, { method: 'POST' });
         const data = await response.json();
         setMembers(data.members);
-        setLoading(false);
         setClubDescription(data.clubDescription);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching club details:", error);
         setLoading(false);
@@ -41,46 +41,64 @@ const Club = () => {
     setEventImages(prevImages => [...prevImages, ...imageURLs]);
   };
 
-  // Loading state
   if (loading) {
-    return <div className="text-center mt-8"><CircularProgress /></div>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div className="p-6">
+    <Box sx={{ p: 4 }}>
       {/* Header */}
-      <Card className="bg-green-600 text-white text-center p-4 rounded-md">
+      <Card sx={{ bgcolor: 'success.main', color: 'white', textAlign: 'center', mb: 4 }}>
         <CardContent>
-          <Typography variant="h3" fontWeight="bold">Club Dashboard</Typography>
-          <Typography variant="h5">Welcome to your club's space, {name}!</Typography>
+          <Typography variant="h3" fontWeight="bold">
+            Club Dashboard
+          </Typography>
+          <Typography variant="h5">
+            Welcome to your club's space, {name}!
+          </Typography>
         </CardContent>
       </Card>
 
       {/* Main Content Layout */}
-      <Grid container spacing={4} className="mt-8">
+      <Grid container spacing={4}>
         {/* Left Section: About the Club and Club Committee Contacts */}
         <Grid item xs={12} lg={4}>
-          <Card className="bg-white border border-gray-300 p-4 rounded-lg shadow-md">
+          {/* About the Club */}
+          <Card sx={{ mb: 4 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>About the Club</Typography>
-              <Typography>{clubDescription}</Typography>
+              <Typography variant="h6" gutterBottom>
+                About the Club
+              </Typography>
+              <Typography>
+                {clubDescription}
+              </Typography>
             </CardContent>
           </Card>
 
           {/* Club Committee Contacts Section */}
-          <Card className="bg-white border border-gray-300 p-4 rounded-lg shadow-md mt-4">
+          <Card sx={{ mb: 4 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Club Committee Contacts</Typography>
-              <Typography>Details about the club committee contacts will go here. Include name, email, and roles.</Typography>
+              <Typography variant="h6" gutterBottom>
+                Club Committee Contacts
+              </Typography>
+              <Typography>
+                Details about the club committee contacts will go here. Include name, email, and roles.
+              </Typography>
             </CardContent>
           </Card>
 
           {/* Member List Section */}
-          <Card className="bg-white border border-gray-300 p-4 rounded-lg shadow-md mt-4">
+          <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Member List</Typography>
+              <Typography variant="h6" gutterBottom>
+                Member List
+              </Typography>
               {members.length > 0 ? (
-                <ul className="list-disc list-inside space-y-2">
+                <ul>
                   {members.map((member, index) => (
                     <li key={index}>
                       {member.name} - {member.email}
@@ -96,7 +114,8 @@ const Club = () => {
 
         {/* Middle Section: Banner of Events */}
         <Grid item xs={12} lg={8}>
-          <Card className="w-full h-auto overflow-hidden rounded-lg bg-gray-200">
+          {/* Event Banner Carousel */}
+          <Card sx={{ mb: 4 }}>
             <Carousel>
               {eventImages.map((image, index) => (
                 <div key={index}>
@@ -107,9 +126,11 @@ const Club = () => {
           </Card>
 
           {/* Other Options Section */}
-          <Card className="bg-white border border-gray-300 p-4 rounded-lg shadow-md mt-4">
+          <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Other Options</Typography>
+              <Typography variant="h6" gutterBottom>
+                Other Options
+              </Typography>
               <Button variant="contained" color="primary" onClick={handleChatEnter}>
                 Enter Chat Room
               </Button>
@@ -119,19 +140,20 @@ const Club = () => {
       </Grid>
 
       {/* Image Upload Section */}
-      <Card className="bg-white border border-gray-300 p-4 rounded-lg shadow-md mt-8">
+      <Card sx={{ mt: 4 }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>📸 Upload Event Banners</Typography>
+          <Typography variant="h6" gutterBottom>
+            📸 Upload Event Banners
+          </Typography>
           <input
             type="file"
             multiple
             accept="image/*"
             onChange={handleImageUpload}
-            className="mb-4"
           />
         </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 };
 

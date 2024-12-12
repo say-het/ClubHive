@@ -5,13 +5,13 @@ const User = require("../models/User.model");
 
 router.post('/addclub', async (req, res) => {
     try {
-        const { newGroupUserName, newGroupName, newGroupDescription, universityName, email } = req.body;
+        const { newGroupUserName, newGroupName, newGroupType, newGroupDescription, universityName, email } = req.body;
 
         // Check if required fields are provided
         if (!newGroupUserName || !newGroupName || !universityName) {
             return res.status(400).json({ msg: "All fields are required" });
         }
-        
+        const isPublic = newGroupType === "Public"; // Converts to true if "Public", else false
         // Check if a club with the same newGroupUserName already exists
         let club = await Club.findOne({ newGroupUserName });
         if (club) {
@@ -21,11 +21,12 @@ router.post('/addclub', async (req, res) => {
         // Create and save a new club
         const filter = { email };  
         let user2 = await User.findOne(filter);  
-
+        
         const newClub = new Club({
             clubUniqueName:newGroupUserName,
-            clubDesrcription:newGroupDescription,
             name:newGroupName,
+            ClubType: isPublic,
+            clubDescription:newGroupDescription,
             universityName,
             members:[{name:user2.name, email:email}]
         });

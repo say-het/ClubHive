@@ -5,14 +5,21 @@ const clubSchema = new mongoose.Schema({
         type: String,
         // required: true,
         // unique: true
-    },
-    clubDescription: {
-        type: String,
-    },
+    },   
     name: {
         type: String,
         // required: true,
         // unique: true
+    },
+    clubType:{
+        // true :  if club is public
+        // false: if club is private
+        type : Boolean,
+        default:false
+    },
+    clubDescription: {
+        type: String,
+        default:'No Value or error in fetching'
     },
     universityName: {
         type: String,
@@ -41,7 +48,7 @@ const clubSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
 });
 
 clubSchema.pre('save', function (next) {
@@ -176,4 +183,3 @@ module.exports = mongoose.model('Club', clubSchema);
 // };
 
 // module.exports = mongoose.model('Club', clubSchema);
-
