@@ -45,6 +45,7 @@ router.post('/addclub', async (req, res) => {
         res.status(500).json({ msg: "Server error", error: error.message });
     }
 });
+
 router.post('/userclubs', async (req, res) => {
     try {
       const { email } = req.body;

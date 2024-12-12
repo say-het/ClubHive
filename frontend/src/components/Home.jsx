@@ -99,45 +99,75 @@ function Home() {
         universityName,
         email,
       };
-
+  
       try {
+        // First, create the club
         const response = await fetch('http://localhost:3000/api/clubs/addclub', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(clubData),
         });
-        location.reload();
+  
         if (!response.ok) {
           throw new Error('Failed to add group');
         }
+  
+        // Call the addclubtouni route after the club is created successfully
+        const clubResponse = await fetch('http://localhost:3000/api/university/addclubtouni', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            universityName,
+            clubName: newGroupName, // Pass the club name to add to the university's club list
+          }),
+        });
+  
+        if (!clubResponse.ok) {
+          throw new Error('Failed to add club to university');
+        }
+  
+        location.reload(); // Reload the page after both operations
       } catch (error) {
         console.error(error.message);
       }
     }
   };
+  
 
   const joinGroup = async (group) => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
       if (!user) throw new Error('User not found in local storage');
       const { email, name } = user;
+  
+      // Check if the user is already part of the group
+      const isAlreadyJoined = userGroups.some((userGroup) => userGroup.clubUniqueName === group.clubUniqueName);
+      if (isAlreadyJoined) {
+        alert('You are already a member of this group')
+        console.log('You are already a member of this group');
+        return; // Prevent joining if already a member
+      }
+  
+      // If not already joined, send the request to join the group
       const response = await fetch('http://localhost:3000/api/clubs/joinsomething', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clubUniqueName: group.clubUniqueName, email, name }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to join club');
       }
-
+  
       const result = await response.json();
-      setUserGroups([...result.clubUniqueName]);
-      location.reload();
+      // Update the userGroups state with the new group
+      setUserGroups([...userGroups, result]);  // Add the new group to the existing groups
+      location.reload();  // Reload to reflect the changes
     } catch (error) {
       console.log('Error joining group:', error);
     }
   };
+  
 
   const seeAllClubs = async () => {
     setIsAvailableGroupsModalOpen(true);
@@ -213,15 +243,18 @@ function Home() {
 
         {/* Available Groups Modal */}
         <Modal open={isAvailableGroupsModalOpen} onClose={() => setIsAvailableGroupsModalOpen(false)}>
-          <Box sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, maxWidth: 500, margin: 'auto' }}>
-            <Typography variant="h6">Available Clubs</Typography>
-            <TextField
-              fullWidth
-              placeholder="Search for a group"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ mt: 2, mb: 4 }}
-            />
+        <Box sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, maxWidth: 500, margin: 'auto' }}>
+          <Typography variant="h6">Available Clubs</Typography>
+          <TextField
+            fullWidth
+            placeholder="Search for a group"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ mt: 2, mb: 4 }}
+          />
+    
+          {/* Scrollable container for groups */}
+          <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
             <Grid container spacing={2}>
               {allGroups.map((group) => (
                 <Grid item xs={12} key={group.name}>
@@ -231,11 +264,14 @@ function Home() {
                 </Grid>
               ))}
             </Grid>
-            <Button variant="contained" color="error" fullWidth sx={{ mt: 4 }} onClick={() => setIsAvailableGroupsModalOpen(false)}>
-              Close
-            </Button>
           </Box>
-        </Modal>
+          
+          <Button variant="contained" color="error" fullWidth sx={{ mt: 4 }} onClick={() => setIsAvailableGroupsModalOpen(false)}>
+            Close
+          </Button>
+        </Box>
+      </Modal>
+
 
         {/* Create Group Modal */}
         <Dialog open={isCreateGroupModalOpen} onClose={() => setIsCreateGroupModalOpen(false)}>
