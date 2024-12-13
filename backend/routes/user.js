@@ -62,9 +62,16 @@ router.post("/show-profile", async(req,res) => {
     res.status(200).json({ msg: "Avator uploaded successfully : ", pfrl });
   } catch({error}){
     console.log("error in fetching the url");
-    
   }
 })
 
+router.post('/user/:id', async(req,res)=>{
+  try {
+    const {email} = req.body;
+    const user = User.findOne({email:email});
+  } catch (e) {
+    console.log(e)
+  }
+})
 
 module.exports = router;

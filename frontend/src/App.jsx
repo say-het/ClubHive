@@ -19,7 +19,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/clubs/:id" element={<Club />} />
-          <Route path ="/user" element={<User />} />
+          <Route path ="/user/" element={<User />} />
+          <Route path ="/user/:id" element={<User />} />
           </Routes>
     </Router>
   );

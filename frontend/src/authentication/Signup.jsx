@@ -114,7 +114,7 @@ function Signup() {
     const user = JSON.parse(localStorage.getItem('user'));
     const name = user.name;
     const email = user.email;
-
+    localStorage.setItem('university',universityName);
     try {
     const res = await axios.post('http://localhost:3000/api/university/addusertouni',{
     universityName,
@@ -132,6 +132,7 @@ function Signup() {
 
   const handleAvatarSelect = async(avatar) => {
     setSelectedAvatar(avatar);
+    localStorage.setItem('avatar',avatar);
     setIsAvatarModalOpen(false);
     console.log('Selected Avatar:', avatar);
     
