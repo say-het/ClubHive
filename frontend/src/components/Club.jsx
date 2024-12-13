@@ -205,23 +205,23 @@ const Club = () => {
 
           {/* Member List Section */}
           <Card>
-  <CardContent>
-    <Typography variant="h6" gutterBottom>
-      Member List
-    </Typography>
-    {members.length > 0 ? (
-      <ul>
-        {members.map((member, index) => (
-          <li key={index}>
-            {member.name} - {member.email} {member.position && `(${member.position})`}
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <Typography>No members found.</Typography>
-    )}
-  </CardContent>
-</Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Member List
+            </Typography>
+            {members.length > 0 ? (
+              <ul>
+                {members.map((member, index) => (
+                  <li key={index}>
+                    {member.name} - {member.email} {member.position && `(${member.position})`}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>No members found.</Typography>
+            )}
+          </CardContent>
+        </Card>
 
         </Grid>
 
@@ -267,9 +267,7 @@ const Club = () => {
           />
         </CardContent>
       </Card>
-)}
-
-
+      )}
       {isSupremeAdmin && (
         <Button variant="contained" color="secondary" onClick={handleModalOpen}>
           Manage Club
