@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 // import { Link, useParams } from 'react-router-dom';
 import { auth } from '../firebase';
@@ -42,6 +43,38 @@ const navigate = useNavigate();
     }
   };
 
+=======
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const UserProfile = ({ email }) => {
+  const [profilePicture, setProfilePicture] = useState(null);
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const email = JSON.parse(localStorage.getItem('user')).email;
+        const prfl = await axios.post('http://localhost:3000/api/users/show-profile', { email });
+        
+        // Access the profile picture URL directly from `prfl.data`
+        // console.log(prfl.data.profilePicture);
+        
+        const profileUrl = prfl.data.pfrl || "https://via.placeholder.com/40"; // Fallback to placeholder
+        setProfilePicture(profileUrl);
+    
+        console.log(profileUrl);  // Check the URL in the console
+      } catch (error) {
+        console.log("Trouble fetching the profile picture", error); // Log the full error object for debugging
+      }
+    };
+
+    fetchProfilePicture();
+  }, [email]);
+
+  if (!profilePicture) {
+    return <div>Loading...</div>;
+  }
+>>>>>>> 7de3c43d2a6731b44682b21a6228a8dcdbfce63b
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
@@ -49,13 +82,18 @@ const navigate = useNavigate();
         {/* Avatar */}
         <div className="flex justify-center mb-6">
           <img
+<<<<<<< HEAD
             src={avatar || 'https://via.placeholder.com/100'}
+=======
+            src={profilePicture || 'https://via.placeholder.com/100'}
+>>>>>>> 7de3c43d2a6731b44682b21a6228a8dcdbfce63b
             alt="User Avatar"
             className="w-24 h-24 rounded-full border-2 border-blue-500"
           />
         </div>
 
         {/* User Info */}
+<<<<<<< HEAD
         {/* <h2 className="text-2xl font-semibold text-center mb-4">{user.name}</h2> */}
         <h2 className="text-2xl font-semibold text-center mb-4">{name}</h2>
 
@@ -76,6 +114,9 @@ const navigate = useNavigate();
             Logout
           </button>
         </div>
+=======
+        {/* Add more user details here */}
+>>>>>>> 7de3c43d2a6731b44682b21a6228a8dcdbfce63b
       </div>
     </div>
   );

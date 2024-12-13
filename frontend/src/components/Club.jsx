@@ -1,42 +1,37 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Modal from 'react-modal';
-import io from "socket.io-client";
-import axios from 'axios';
+import { Box, Grid, Card, CardContent, Typography, Button, CircularProgress, Modal, Fade, Backdrop, MenuItem, Select, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Carousel } from 'react-responsive-carousel'; // For Carousel
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Carousel CSS
 
-// Initialize socket connection inside a useEffect
-let socket = io("http://localhost:3000");
-// let socket;
-
-
-function Club() {
+const Club = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
   const name = user?.name;
   const email = user?.email;
-  const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const messageContainerRef = useRef(null);
-
-  useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
-  // Fetch club members
+  const [eventImages, setEventImages] = useState([]);
+  const [clubDescription, setClubDescription] = useState('');
+  const [openModal, setOpenModal] = useState(false); // Modal state
+  const [supremeAdmin, setSupremeAdmin] = useState('');
+  const [admins, setAdmins] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(''); // Selected member for action
+  const [openDialog, setOpenDialog] = useState(false); // Confirmation dialog state
+  const [promotionType, setPromotionType] = useState(''); // Track promotion type
+  const [openRemoveAdminDialog, setOpenRemoveAdminDialog] = useState(false); // State to control the remove admin dialog
+  const [adminToRemove, setAdminToRemove] = useState(''); // To track the admin being removed
+  
   useEffect(() => {
     const fetchClub = async () => {
       try {
-        console.log(id)
         const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`, { method: 'POST' });
         const data = await response.json();
         setMembers(data.members);
+        setClubDescription(data.clubDescription);
+        setSupremeAdmin(data.supremeAdmin);
+        setAdmins(data.admins);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching club details:", error);
@@ -45,208 +40,358 @@ function Club() {
     };
     fetchClub();
   }, [id]);
-  useEffect(() => {
-    const fetchMessages = async () => {
-        try {
-            const response = await axios.post('http://localhost:3000/api/msg/allmsg', {
-                clubUniqueId: id
-            });
 
-            // Access data directly from response.data
-            const data = response.data;
-            console.log(data);
-
-          // setMessages((prevMessages) => [...prevMessages, data.msgs]);
-
-            if (response.status === 200) {
-                setMessages(data.msgs);  // Assuming 'msgs' holds the array of messages
-            } else {
-                console.error("Failed to fetch messages:", data.msg);
-            }
-
-            setLoading(false);
-        } catch (error) {
-            console.error("Error fetching messages:", error);
-            setLoading(false);
-        }
-    };
-
-    fetchMessages();
-}, []); // Empty dependency array to load only on initial mount
- // Empty dependency array to load only on initial mount
-
-  // Setup socket connection and event listeners
-  const socketRef = useRef(null);
-
-  useEffect(() => {
-      if (!socketRef.current) {
-          socketRef.current = io("http://localhost:3000");
-      }
-      socketRef.current.emit("join_room", id);
-  
-      const handleReceiveMessage = (data) => {
-          setMessages((prevMessages) => [...prevMessages, data]);
-      };
-  
-      socketRef.current.on("receive_message", handleReceiveMessage);
-  
-      return () => {
-          socketRef.current.off("receive_message", handleReceiveMessage);
-          socketRef.current.emit("leave_room", id);
-      };
-  }, [id]);
-
-  // Send a message
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    console.log("jaja")
-    if (newMessage) {
-      const messageData = {
-        room: id,
-        text: newMessage,
-        name: name,
-      };
-      try {
-        await axios.post('http://localhost:3000/api/msg/sendmsg', {
-          name: messageData.name,
-          email,
-          text: messageData.text,
-          clubUniqueId: id,
-        });
-      } catch (error) {
-        console.error("Failed to send message:", error);
-      }
-      socket.emit("send_message", messageData);
-      // setMessages((prevMessages) => [...prevMessages, messageData]);
-      setNewMessage('');
-    }
+  const handleChatEnter = () => {
+    navigate(`/chat/${id}`);
   };
 
-  // Leave group
-  const leaveGroup = async () => {
+  const isSupremeAdmin = email === supremeAdmin;  // Check if the current user is the supreme admin
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const imageURLs = files.map(file => URL.createObjectURL(file));
+    setEventImages(prevImages => [...prevImages, ...imageURLs]);
+  };
+
+  const handleModalOpen = () => {
+    setOpenModal(true);
+  };
+
+  const handleModalClose = () => {
+    setOpenModal(false);
+  };
+
+  const handleMemberSelect = (e) => {
+    setSelectedMember(e.target.value);
+  };
+
+  const handleOpenDialog = (type) => {
+    setPromotionType(type);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+  const handleOpenRemoveAdminDialog = (email) => {
+    setAdminToRemove(email);
+    setOpenRemoveAdminDialog(true);
+  };
+
+  const handleConfirmPromotion = async () => {
     try {
-      await axios.post(`http://localhost:3000/api/clubs/leave`, {
-        name,
-        email,
-        clubname: id,
-      });
-      alert("You have left the group.");
-      setIsModalOpen(false);
-      navigate('/home');
-      setMembers((members) => members.filter((member) => member.name !== name));
+      if (promotionType === 'supremeAdmin') {
+        const response = await fetch('http://localhost:3000/api/clubs/transferSupremeAdmin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            clubUniqueName: id, // Assuming `id` is the unique name of the club
+            currentSupremeAdmin: supremeAdmin,
+            newSupremeAdmin: selectedMember,
+          }),
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data.msg);
+          setSupremeAdmin(selectedMember);
+        } else {
+          console.error(data.msg);
+          alert(data.msg);
+        }
+      } else if (promotionType === 'admin') {
+        const response = await fetch('http://localhost:3000/api/clubs/addAdmin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            clubUniqueName: id, // The unique name of the club
+            supremeAdminEmail: supremeAdmin, // Assuming `supremeAdmin` is the email of the current supreme admin
+            newAdminEmail: selectedMember, // Email of the user to be promoted
+          }),
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data.msg);
+          // You might want to update the UI or the state to reflect the new admin status
+        } else {
+          console.error(data.msg);
+          alert(data.msg);
+        }
+      }
+  
+      setOpenDialog(false);
+      setOpenModal(false);
+  
     } catch (error) {
-      console.error("Error leaving group", error);
+      console.error("Error promoting member:", error);
+      alert("An error occurred while promoting the member.");
     }
   };
+  const handleRemoveAdmin = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/api/clubs/removeAdmin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        clubUniqueName: id, // Assuming `id` is the unique name of the club
+        supremeAdminEmail: supremeAdmin, // The email of the current supreme admin
+        adminToRemoveEmail: adminToRemove, // The email of the admin to be removed
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      console.log(data.msg);
+      // Optionally, update the UI or state to reflect the admin removal
+      setAdmins((prevAdmins) => prevAdmins.filter(admin => admin !== adminToRemove));
+    } else {
+      console.error(data.msg);
+      alert(data.msg);
+    }
+
+    setOpenRemoveAdminDialog(false);
+  } catch (error) {
+    console.error("Error removing admin:", error);
+    alert("An error occurred while removing the admin.");
+    setOpenRemoveAdminDialog(false);
+  }
+};
+  
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <>
-      <div className={`flex min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`}>
-        {/* Left side - Members list */}
-        <div className={`w-1/3 p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'} border-r border-gray-200`}>
-          <h2 className="text-xl font-bold mb-4">Members</h2>
-          <ul className="space-y-2">
+    <Box sx={{ p: 4 }}>
+      {/* Header */}
+      <Card sx={{ bgcolor: 'success.main', color: 'white', textAlign: 'center', mb: 4 }}>
+        <CardContent>
+          <Typography variant="h3" fontWeight="bold">
+            Club Dashboard
+          </Typography>
+          <Typography variant="h5">
+            Welcome to your club's space, {name}!
+          </Typography>
+        </CardContent>
+      </Card>
+
+      {/* Main Content Layout */}
+      <Grid container spacing={4}>
+        {/* Left Section: About the Club and Club Committee Contacts */}
+        <Grid item xs={12} lg={4}>
+          {/* About the Club */}
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                About the Club
+              </Typography>
+              <Typography>
+                {clubDescription}
+              </Typography>
+            </CardContent>
+          </Card>
+
+          {/* Member List Section */}
+          <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Member List
+            </Typography>
             {members.length > 0 ? (
-              members.map((member) => (
-                <li key={member.email} className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-blue-100'} rounded-lg`}>
-                  {member.name}
-                </li>
-              ))
+              <ul>
+                {members.map((member, index) => (
+                  <li key={index}>
+                    {member.name} - {member.email} {member.position && `(${member.position})`}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <li>No members found.</li>
+              <Typography>No members found.</Typography>
             )}
-          </ul>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
-          >
-            Settings
-          </button>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Right side - Chat box */}
-        <div className={`w-2/3 p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-          <h2 className="text-xl font-bold mb-4">Group Chat</h2>
-          <div className="flex flex-col h-full">
-            {/* Messages */}
-            <div
-  ref={messageContainerRef}
-  className={`overflow-y-auto p-2 border ${darkMode ? 'border-gray-600' : 'border-gray-200'} rounded-lg mb-4`}
-  style={{
-    maxHeight: '520px',  // Set the max-height to ensure it doesn’t expand beyond this size
-    height: '100%',      // You can also try setting a fixed height if this still doesn't work
-    overflowY: 'auto',
-  }}
->
-  {messages.map((message, index) => (
-    <div
-      key={index}
-      className={`mb-2 p-2 rounded-lg max-w-xs ${
-        message.name === name ? "bg-blue-100 ml-auto text-right" : "bg-gray-100 mr-auto text-left"
-      }`}
-    >
-      <strong>{message.name === name ? "You" : message.name}:  </strong>
-      <span>{message.text}</span>
-    </div>
-  ))}
-</div>
+        </Grid>
 
+        {/* Middle Section: Banner of Events */}
+        <Grid item xs={12} lg={8}>
+          {/* Event Banner Carousel */}
+          <Card sx={{ mb: 4 }}>
+            <Carousel>
+              {eventImages.map((image, index) => (
+                <div key={index}>
+                  <img src={image} alt={`event-banner-${index}`} />
+                </div>
+              ))}
+            </Carousel>
+          </Card>
 
+          {/* Other Options Section */}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Other Options
+              </Typography>
+              <Button variant="contained" color="primary" onClick={handleChatEnter}>
+                Enter Chat Room
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-            {/* Input for new message */}
-            <form onSubmit={sendMessage} className="flex items-center space-x-2">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className={`flex-1 p-2 border ${darkMode ? 'text-black border-gray-600' : 'border-gray-300'} rounded-lg`}
-              />
-              <button
-                type="submit"
-                className={`p-2 ${darkMode ? 'bg-blue-600' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
-              >
-                Send
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+      {/* Image Upload Section */}
+      {(isSupremeAdmin || admins.includes(email)) && (
+      <Card sx={{ mt: 4 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            📸 Upload Event Banners
+          </Typography>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
+        </CardContent>
+      </Card>
+      )}
+      {isSupremeAdmin && (
+        <Button variant="contained" color="secondary" onClick={handleModalOpen}>
+          Manage Club
+        </Button>
+      )}
 
-      {/* Modal for settings */}
       <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Settings Modal"
-        className="modal"
-        overlayClassName="overlay"
+        open={openModal}
+        onClose={handleModalClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
       >
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-xl">
-            <h2 className="text-xl font-bold">Settings</h2>
-            <button
-              onClick={leaveGroup}
-              className={`mt-4 p-2 ${darkMode ? 'bg-red-600' : 'bg-red-500'} text-white rounded-lg hover:bg-red-600 focus:outline-none`}
+        <Fade in={openModal}>
+          <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+          }}>
+            <Typography variant="h6" gutterBottom>
+              Manage Club
+            </Typography>
+            <Typography variant="body1">
+              Supreme Admin: {supremeAdmin}
+            </Typography>
+            <Typography variant="body1">
+              Admins: {admins.join(', ')}
+            </Typography>
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="select-member-label">Select Member</InputLabel>
+              <Select
+                labelId="select-member-label"
+                value={selectedMember}
+                onChange={handleMemberSelect}
+              >
+                {members.map((member, index) => (
+                  <MenuItem key={index} value={member.email}>
+                    {member.name} - {member.email}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mt: 2 }}
+              onClick={() => handleOpenDialog('admin')}
             >
-              Leave Group
-            </button>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`mt-4 ml p-2 ${darkMode ? 'bg-yellow-500' : 'bg-gray-700'} text-white rounded-lg`}
+              Promote to Admin
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              sx={{ mt: 2, ml: 2 }}
+              onClick={() => handleOpenDialog('supremeAdmin')}
             >
-              {darkMode ? 'Light Mode' : 'Dark Mode'}
-            </button>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className={`mt-4 ml-2 p-2 ${darkMode ? 'bg-gray-600' : ' bg-gray-500'} text-white rounded-lg hover:bg-gray-600 focus:outline-none`}
-            >
+              Promote to Supreme Admin
+            </Button>
+            <Button variant="contained" sx={{ mt: 2 }} onClick={handleModalClose}>
               Close
-            </button>
-          </div>
-        </div>
+            </Button>
+            <Button
+            variant="contained"
+            color="error"
+            sx={{ mt: 2, ml: 2 }}
+            onClick={() => handleOpenRemoveAdminDialog(selectedMember)} // Pass the selected member's email to remove
+          >
+            Remove Admin
+          </Button>
+
+          // Confirmation Dialog for Removing Admin
+          <Dialog
+            open={openRemoveAdminDialog}
+            onClose={() => setOpenRemoveAdminDialog(false)}
+          >
+            <DialogTitle>Confirm Removal</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to remove {selectedMember} as an admin?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenRemoveAdminDialog(false)} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleRemoveAdmin} color="secondary">
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+          </Box>
+        </Fade>
       </Modal>
-    </>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+      >
+        <DialogTitle>Confirm Promotion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to promote {selectedMember} to {promotionType === 'admin' ? 'Admin' : 'Supreme Admin'}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmPromotion} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
-}
+};
 
 export default Club;

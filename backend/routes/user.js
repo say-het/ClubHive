@@ -50,6 +50,36 @@ router.post("/update-avatar", async (req, res) => {
   }
 });
 
+// router.post("/show-profile", async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email: email });
+
+//     if (!user) {
+//       return res.status(404).json({ msg: "User not found" });
+//     }
+
+//     // Return user details
+//     const userDetails = {
+//       name: user.name,
+//       email: user.email,
+//       uniname: user.uniname,
+//       profilePicture: user.profilePicture,
+//       bio: user.bio,
+//       interests: user.interests,
+//       clubs: user.clubs,
+//       friends: user.friends
+//     };
+
+//     console.log(userDetails);
+
+//     res.status(200).json({ msg: "User profile fetched successfully", userDetails });
+//   } catch (error) {
+//     console.error("Error fetching user profile:", error);
+//     res.status(500).json({ msg: "Server error", error: error.message });
+//   }
+// });
+
 router.post("/show-profile", async(req,res) => {
 
   try{

@@ -106,13 +106,20 @@ function Navbar() {
   
         {/* Avatar */}
         {isLoggedIn && (
-          <div className="ml-4">
-            <img                  
+          <Link to={`/profile/${JSON.parse(localStorage.getItem('user')).email}`} className="ml-4">
+            <img
               src={avatarUrl}
               alt="User Avatar"
-              className="w-10 h-10 rounded-full"
+              className="w-10 h-10 rounded-full cursor-pointer"
             />
-          </div>
+          </Link>
+          // <div className="ml-4">
+          //   <img                  
+          //     src={avatarUrl}
+          //     alt="User Avatar"
+          //     className="w-10 h-10 rounded-full"
+          //   />
+          // </div>
         )}
       </div>
     </nav>
