@@ -1,39 +1,49 @@
 const mongoose = require('mongoose');
-const Club = require("../models/Club.model");
-
-
 
 const clubSchema = new mongoose.Schema({
     clubUniqueName: {
         type: String,
-        // required: true,
-        // unique: true
-    },
+    },   
     name: {
         type: String,
-        // required: true,
-        // unique: true
+    },
+    clubType: {
+        type: Boolean, // true: public, false: private
+        default: false
+    },
+    clubDescription: {
+        type: String,
+        default: 'No Value or error in fetching'
     },
     universityName: {
         type: String,
         required: true
     },
-    members:[
-        {
+    members: [{
         name: {
             type: String,
             required: true
-          },
-          email: {
+        },
+        email: {
             type: String,
             required: true
-          },}
-    ],
-      
+        },
+        position: {
+            type: String,
+            default: 'member'
+        }
+    }],
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'Msg'
-    }],  
+        ref: 'Msg'
+    }],
+    supremeAdmin: {
+        type: String, // Email of the supreme admin
+        required: true
+    },
+    admins: [{
+        type: String // List of emails of other admins
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -41,7 +51,7 @@ const clubSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
 });
 
 clubSchema.pre('save', function (next) {

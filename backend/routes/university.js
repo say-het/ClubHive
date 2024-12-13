@@ -46,5 +46,26 @@ const userUpdate = await User.findOneAndUpdate({email:email},{ $set: { uniname: 
         res.status(500).json({ msg: "Error adding user to university", error });
     }
 });
+// Add Club to University
+router.post("/addclubtouni", async (req, res) => {
+    try {
+        const { universityName, clubName } = req.body;
 
+        // Find the university and update with the club's name
+        const uniUpdate = await University.findOneAndUpdate(
+            { univesity: universityName },
+            { $push: { clubs: clubName } }, // Adds club to the university's 'clubs' array
+            { new: true }
+        );
+
+        if (!uniUpdate) {
+            return res.status(404).json({ msg: "University not found" });
+        }
+
+        res.status(200).json({ msg: "Club added to university", uniUpdate });
+    } catch (error) {
+        console.error("Error adding club to university", error);
+        res.status(500).json({ msg: "Error adding club to university", error });
+    }
+});
 module.exports = router;
