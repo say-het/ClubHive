@@ -15,7 +15,7 @@ const PORT = 3000;
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5174',
+  origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
@@ -41,7 +41,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5174"],
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST"],
   },
 });

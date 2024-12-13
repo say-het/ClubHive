@@ -28,6 +28,10 @@ const clubSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        position: {
+            type: String,
+            default: 'member'
+        }
     }],
     messages: [{
         type: mongoose.Schema.Types.ObjectId,

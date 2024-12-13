@@ -236,40 +236,43 @@ router.post('/userclubs', async (req, res) => {
     try {
         const { clubUniqueName, currentSupremeAdmin, newSupremeAdmin } = req.body;
 
-        // Validate inputs
         if (!clubUniqueName || !currentSupremeAdmin || !newSupremeAdmin) {
             return res.status(400).json({ msg: "All fields are required" });
         }
 
-        // Find the club
         const club = await Club.findOne({ clubUniqueName });
         if (!club) {
             return res.status(404).json({ msg: "Club not found" });
         }
 
-        // Check if the current user is the supreme admin
         if (club.supremeAdmin !== currentSupremeAdmin) {
             return res.status(403).json({ msg: "Only the supreme admin can transfer their role" });
         }
 
-        // Check if the new supreme admin is already a member of the club
         const newAdminExists = club.members.find(member => member.email === newSupremeAdmin);
         if (!newAdminExists) {
             return res.status(404).json({ msg: "New supreme admin must be a member of the club" });
         }
 
-        // Transfer the supreme admin role
+        // Transfer supreme admin role
         club.supremeAdmin = newSupremeAdmin;
 
-        // Add the current supreme admin to the admins list
+        // Update positions in the members array
+        club.members = club.members.map(member => {
+            if (member.email === currentSupremeAdmin) {
+                member.position = 'admin';
+            }
+            if (member.email === newSupremeAdmin) {
+                member.position = 'admin';
+            }
+            return member;
+        });
+
         if (!club.admins.includes(currentSupremeAdmin)) {
             club.admins.push(currentSupremeAdmin);
         }
 
-        // Save the changes
         await club.save();
-
-        console.log(`Supreme admin role transferred to ${newSupremeAdmin}`);
         res.status(200).json({ msg: "Supreme admin role transferred successfully", club });
 
     } catch (error) {
@@ -277,44 +280,88 @@ router.post('/userclubs', async (req, res) => {
         res.status(500).json({ msg: "Server error", error: error.message });
     }
 });
+//   router.post('/transferSupremeAdmin', async (req, res) => {
+//     try {
+//         const { clubUniqueName, currentSupremeAdmin, newSupremeAdmin } = req.body;
+
+//         // Validate inputs
+//         if (!clubUniqueName || !currentSupremeAdmin || !newSupremeAdmin) {
+//             return res.status(400).json({ msg: "All fields are required" });
+//         }
+
+//         // Find the club
+//         const club = await Club.findOne({ clubUniqueName });
+//         if (!club) {
+//             return res.status(404).json({ msg: "Club not found" });
+//         }
+
+//         // Check if the current user is the supreme admin
+//         if (club.supremeAdmin !== currentSupremeAdmin) {
+//             return res.status(403).json({ msg: "Only the supreme admin can transfer their role" });
+//         }
+
+//         // Check if the new supreme admin is already a member of the club
+//         const newAdminExists = club.members.find(member => member.email === newSupremeAdmin);
+//         if (!newAdminExists) {
+//             return res.status(404).json({ msg: "New supreme admin must be a member of the club" });
+//         }
+
+//         // Transfer the supreme admin role
+//         club.supremeAdmin = newSupremeAdmin;
+
+//         // Add the current supreme admin to the admins list
+//         if (!club.admins.includes(currentSupremeAdmin)) {
+//             club.admins.push(currentSupremeAdmin);
+//         }
+
+//         // Save the changes
+//         await club.save();
+
+//         console.log(`Supreme admin role transferred to ${newSupremeAdmin}`);
+//         res.status(200).json({ msg: "Supreme admin role transferred successfully", club });
+
+//     } catch (error) {
+//         console.error("Error transferring supreme admin:", error);
+//         res.status(500).json({ msg: "Server error", error: error.message });
+//     }
+// });
 router.post('/addAdmin', async (req, res) => {
   try {
       const { clubUniqueName, supremeAdminEmail, newAdminEmail } = req.body;
 
-      // Validate inputs
       if (!clubUniqueName || !supremeAdminEmail || !newAdminEmail) {
           return res.status(400).json({ msg: "All fields are required" });
       }
 
-      // Find the club
       const club = await Club.findOne({ clubUniqueName });
       if (!club) {
           return res.status(404).json({ msg: "Club not found" });
       }
 
-      // Check if the user making the request is the supreme admin
       if (club.supremeAdmin !== supremeAdminEmail) {
           return res.status(403).json({ msg: "Only the supreme admin can add new admins" });
       }
 
-      // Check if the new admin is already a member of the club
       const memberExists = club.members.find(member => member.email === newAdminEmail);
       if (!memberExists) {
           return res.status(404).json({ msg: "Admin must be a member of the club" });
       }
 
-      // Check if the user is already an admin
       if (club.admins.includes(newAdminEmail)) {
           return res.status(409).json({ msg: "This user is already an admin" });
       }
 
-      // Add the user to the admins list
       club.admins.push(newAdminEmail);
 
-      // Save the changes
-      await club.save();
+      // Update position in members array
+      club.members = club.members.map(member => {
+          if (member.email === newAdminEmail) {
+              member.position = 'admin';
+          }
+          return member;
+      });
 
-      console.log(`New admin added: ${newAdminEmail}`);
+      await club.save();
       res.status(200).json({ msg: "New admin added successfully", club });
 
   } catch (error) {
@@ -322,39 +369,84 @@ router.post('/addAdmin', async (req, res) => {
       res.status(500).json({ msg: "Server error", error: error.message });
   }
 });
+
+// router.post('/addAdmin', async (req, res) => {
+//   try {
+//       const { clubUniqueName, supremeAdminEmail, newAdminEmail } = req.body;
+
+//       // Validate inputs
+//       if (!clubUniqueName || !supremeAdminEmail || !newAdminEmail) {
+//           return res.status(400).json({ msg: "All fields are required" });
+//       }
+
+//       // Find the club
+//       const club = await Club.findOne({ clubUniqueName });
+//       if (!club) {
+//           return res.status(404).json({ msg: "Club not found" });
+//       }
+
+//       // Check if the user making the request is the supreme admin
+//       if (club.supremeAdmin !== supremeAdminEmail) {
+//           return res.status(403).json({ msg: "Only the supreme admin can add new admins" });
+//       }
+
+//       // Check if the new admin is already a member of the club
+//       const memberExists = club.members.find(member => member.email === newAdminEmail);
+//       if (!memberExists) {
+//           return res.status(404).json({ msg: "Admin must be a member of the club" });
+//       }
+
+//       // Check if the user is already an admin
+//       if (club.admins.includes(newAdminEmail)) {
+//           return res.status(409).json({ msg: "This user is already an admin" });
+//       }
+
+//       // Add the user to the admins list
+//       club.admins.push(newAdminEmail);
+
+//       // Save the changes
+//       await club.save();
+
+//       console.log(`New admin added: ${newAdminEmail}`);
+//       res.status(200).json({ msg: "New admin added successfully", club });
+
+//   } catch (error) {
+//       console.error("Error adding new admin:", error);
+//       res.status(500).json({ msg: "Server error", error: error.message });
+//   }
+// });
 router.post('/removeAdmin', async (req, res) => {
   try {
       const { clubUniqueName, supremeAdminEmail, adminToRemoveEmail } = req.body;
 
-      // Validate inputs
       if (!clubUniqueName || !supremeAdminEmail || !adminToRemoveEmail) {
           return res.status(400).json({ msg: "All fields are required" });
       }
 
-      // Find the club
       const club = await Club.findOne({ clubUniqueName });
       if (!club) {
           return res.status(404).json({ msg: "Club not found" });
       }
 
-      // Check if the user making the request is the supreme admin
       if (club.supremeAdmin !== supremeAdminEmail) {
           return res.status(403).json({ msg: "Only the supreme admin can remove an admin" });
       }
 
-      // Check if the admin to remove is actually an admin
-      const isAdmin = club.admins.includes(adminToRemoveEmail);
-      if (!isAdmin) {
+      if (!club.admins.includes(adminToRemoveEmail)) {
           return res.status(404).json({ msg: "The specified user is not an admin" });
       }
 
-      // Remove the admin from the admins list
       club.admins = club.admins.filter(email => email !== adminToRemoveEmail);
 
-      // Save the changes
-      await club.save();
+      // Update position in members array
+      club.members = club.members.map(member => {
+          if (member.email === adminToRemoveEmail) {
+              member.position = 'member';
+          }
+          return member;
+      });
 
-      console.log(`Admin removed: ${adminToRemoveEmail}`);
+      await club.save();
       res.status(200).json({ msg: "Admin removed successfully", club });
 
   } catch (error) {
@@ -362,5 +454,45 @@ router.post('/removeAdmin', async (req, res) => {
       res.status(500).json({ msg: "Server error", error: error.message });
   }
 });
+// router.post('/removeAdmin', async (req, res) => {
+//   try {
+//       const { clubUniqueName, supremeAdminEmail, adminToRemoveEmail } = req.body;
+
+//       // Validate inputs
+//       if (!clubUniqueName || !supremeAdminEmail || !adminToRemoveEmail) {
+//           return res.status(400).json({ msg: "All fields are required" });
+//       }
+
+//       // Find the club
+//       const club = await Club.findOne({ clubUniqueName });
+//       if (!club) {
+//           return res.status(404).json({ msg: "Club not found" });
+//       }
+
+//       // Check if the user making the request is the supreme admin
+//       if (club.supremeAdmin !== supremeAdminEmail) {
+//           return res.status(403).json({ msg: "Only the supreme admin can remove an admin" });
+//       }
+
+//       // Check if the admin to remove is actually an admin
+//       const isAdmin = club.admins.includes(adminToRemoveEmail);
+//       if (!isAdmin) {
+//           return res.status(404).json({ msg: "The specified user is not an admin" });
+//       }
+
+//       // Remove the admin from the admins list
+//       club.admins = club.admins.filter(email => email !== adminToRemoveEmail);
+
+//       // Save the changes
+//       await club.save();
+
+//       console.log(`Admin removed: ${adminToRemoveEmail}`);
+//       res.status(200).json({ msg: "Admin removed successfully", club });
+
+//   } catch (error) {
+//       console.error("Error removing admin:", error);
+//       res.status(500).json({ msg: "Server error", error: error.message });
+//   }
+// });
 
 module.exports = router;
