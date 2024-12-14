@@ -35,7 +35,7 @@ function Navbar() {
   const profilepicture = async () => {
     try {
       const email = JSON.parse(localStorage.getItem('user')).email;
-      const prfl = await axios.post('http://localhost:3000/api/users/show-profile', { email });
+      const prfl = await axios.post('http://localhost:3000/api/users/fetch-profile-avatar', { email });
       
       // Access the profile picture URL directly from `prfl.data`
       // console.log(prfl.data.profilePicture);

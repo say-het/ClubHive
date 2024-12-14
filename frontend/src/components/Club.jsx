@@ -176,7 +176,7 @@ const Club = () => {
   return (
     <Box sx={{ p: 4 }}>
       {/* Header */}
-      <Card sx={{ bgcolor: 'success.main', color: 'white', textAlign: 'center', mb: 4 }}>
+      <Card sx={{ bgcolor: 'white', color: 'black', textAlign: 'center', mb: 4 }}>
         <CardContent>
           <Typography variant="h3" fontWeight="bold">
             Club Dashboard
@@ -290,7 +290,7 @@ const Club = () => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: 400,
-            bgcolor: 'background.paper',
+            bgcolor: 'White',
             border: '2px solid #000',
             boxShadow: 24,
             p: 4,

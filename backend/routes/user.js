@@ -79,8 +79,7 @@ router.post("/update-avatar", async (req, res) => {
 //     res.status(500).json({ msg: "Server error", error: error.message });
 //   }
 // });
-
-router.post("/show-profile", async(req,res) => {
+router.post("/fetch-profile-avatar", async(req,res) => {
 
   try{
     const {email} = req.body;
@@ -90,7 +89,34 @@ router.post("/show-profile", async(req,res) => {
     console.log(pfrl);
     
     res.status(200).json({ msg: "Avator uploaded successfully : ", pfrl });
-  } catch({error}){
+    } catch({error}){
+    console.log("error in fetching the url");
+  }
+})
+router.post("/show-profile", async(req,res) => {
+
+  try{
+    const {email} = req.body;
+    const user = await User.findOne({email:email});
+    
+    const pfrl = user.profilePicture;
+    const name = user.name;
+    const clubs = user.clubs;
+    const interests = user.interests;
+    const uniname = user.uniname;
+    console.log(pfrl);
+    
+    res.status(200).json({
+      msg: "Profile data fetched successfully",
+      data: {
+        profilePicture: pfrl,
+        name,
+        clubs,
+        interests,
+        universityName: uniname,
+      },
+    });
+    } catch({error}){
     console.log("error in fetching the url");
   }
 })
