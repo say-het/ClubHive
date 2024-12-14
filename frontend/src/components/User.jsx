@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom'; // Import useParams from react-router-dom
 
-const UserProfile = ({ email }) => {
+const UserProfile = () => {
+  const { id } = useParams();  // Get the email or ID from the URL
   const [profilePicture, setProfilePicture] = useState(null);
   const [profileName, setProfileName] = useState('');
   const [profileEmail, setProfileEmail] = useState('');
@@ -12,7 +14,8 @@ const UserProfile = ({ email }) => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const userEmail = email || JSON.parse(localStorage.getItem('user')).email;
+        // Always use the id (email) from the URL
+        const userEmail = id; // This is now coming from the URL, not localStorage
 
         const response = await axios.post('http://localhost:3000/api/users/show-profile', { email: userEmail });
 
@@ -30,7 +33,7 @@ const UserProfile = ({ email }) => {
     };
 
     fetchProfileData();
-  }, [email]);
+  }, [id]); // Dependency on id to refetch when id changes
 
   if (!profilePicture) {
     return <div className="text-white text-center mt-10">Loading...</div>;

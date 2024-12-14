@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams ,Link} from 'react-router-dom';
 import { Box, Grid, Card, CardContent, Typography, Button, CircularProgress, Modal, Fade, Backdrop, MenuItem, Select, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { Carousel } from 'react-responsive-carousel'; // For Carousel
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Carousel CSS
@@ -22,7 +22,8 @@ const Club = () => {
   const [promotionType, setPromotionType] = useState(''); // Track promotion type
   const [openRemoveAdminDialog, setOpenRemoveAdminDialog] = useState(false); // State to control the remove admin dialog
   const [adminToRemove, setAdminToRemove] = useState(''); // To track the admin being removed
-  
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [profileMember, setProfileMember] = useState(null); // Changed state name here
   useEffect(() => {
     const fetchClub = async () => {
       try {
@@ -77,7 +78,15 @@ const Club = () => {
     setAdminToRemove(email);
     setOpenRemoveAdminDialog(true);
   };
+  const handleOpenProfile = (member) => {
+    setProfileMember(member); // Changed variable name here
+    setOpenProfileDialog(true);
+  };
 
+  const handleCloseProfile = () => {
+    setOpenProfileDialog(false);
+    setProfileMember(null); // Changed variable name here
+  };
   const handleConfirmPromotion = async () => {
     try {
       if (promotionType === 'supremeAdmin') {
@@ -206,21 +215,53 @@ const Club = () => {
           {/* Member List Section */}
           <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Member List
-            </Typography>
-            {members.length > 0 ? (
-              <ul>
-                {members.map((member, index) => (
-                  <li key={index}>
-                    {member.name} - {member.email} {member.position && `(${member.position})`}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Typography>No members found.</Typography>
-            )}
-          </CardContent>
+        <Typography variant="h6" gutterBottom>
+          Member List
+        </Typography>
+        {members.length > 0 ? (
+          <ul>
+            {members.map((member, index) => (
+              <li key={index}>
+                {member.name} - {member.email} {member.position && `(${member.position})`}
+                <Button
+                  // variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => handleOpenProfile(member)}
+                  style={{ marginLeft: '10px' }}
+                >
+                  View Profile
+                </Button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Typography>No members found.</Typography>
+        )}
+      </CardContent>
+
+      {/* Profile Dialog */}
+      {profileMember && ( // Changed variable name here
+        <Dialog open={openProfileDialog} onClose={handleCloseProfile}>
+          <DialogTitle>Profile of {profileMember.name}</DialogTitle> {/* Changed variable name here */}
+          <DialogContent>
+            <Typography variant="body1"><strong>Email:</strong> {profileMember.email}</Typography> {/* Changed variable name here */}
+            <Typography variant="body1"><strong>Position:</strong> {profileMember.position || 'N/A'}</Typography> {/* Changed variable name here */}
+            <Typography variant="body1"><strong>Additional Info:</strong> {profileMember.additionalInfo || 'N/A'}</Typography> {/* Changed variable name here */}
+            <Link to={`/profile/${profileMember.email}`} className="ml-4">
+              View more
+            </Link>
+
+
+            {/* Add more profile details as needed */}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseProfile} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
         </Card>
 
         </Grid>

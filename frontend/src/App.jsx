@@ -24,6 +24,8 @@ export default function App() {
           <Route path ="/user" element={<User />} />
           <Route path ="/chat/:id" element={<Chat />} /> 
           <Route path ="profile/:id" element ={<UserProfile />}/>
+          {/* <Route path="/profile/:email" element={<UserProfile />} /> */}
+
           </Routes>
     </Router>
   );
