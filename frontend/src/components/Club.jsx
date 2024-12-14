@@ -325,27 +325,30 @@ const Club = () => {
         }}
       >
         <Fade in={openModal}>
-          <Box sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'White',
-            border: '2px solid #000',
-            boxShadow: 24,
-            p: 4,
-          }}>
-            <Typography variant="h6" gutterBottom>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 400,
+              bgcolor: 'white',
+              border: '1px solid #e0e0e0',
+              borderRadius: 2,
+              boxShadow: 6,
+              p: 3,
+            }}
+          >
+            <Typography variant="h6" gutterBottom align="center">
               Manage Club
             </Typography>
-            <Typography variant="body1">
-              Supreme Admin: {supremeAdmin}
+            <Typography variant="body1" color="textSecondary">
+              Supreme Admin: <strong>{supremeAdmin}</strong>
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" color="textSecondary" mb={2}>
               Admins: {admins.join(', ')}
             </Typography>
-            <FormControl fullWidth sx={{ mt: 2 }}>
+            <FormControl fullWidth>
               <InputLabel id="select-member-label">Select Member</InputLabel>
               <Select
                 labelId="select-member-label"
@@ -359,54 +362,64 @@ const Club = () => {
                 ))}
               </Select>
             </FormControl>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2 }}
-              onClick={() => handleOpenDialog('admin')}
-            >
-              Promote to Admin
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              sx={{ mt: 2, ml: 2 }}
-              onClick={() => handleOpenDialog('supremeAdmin')}
-            >
-              Promote to Supreme Admin
-            </Button>
-            <Button variant="contained" sx={{ mt: 2 }} onClick={handleModalClose}>
-              Close
-            </Button>
-            <Button
-            variant="contained"
-            color="error"
-            sx={{ mt: 2, ml: 2 }}
-            onClick={() => handleOpenRemoveAdminDialog(selectedMember)} // Pass the selected member's email to remove
-          >
-            Remove Admin
-          </Button>
+            <Box mt={3} display="flex" justifyContent="space-between">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenDialog('admin')}
+              >
+                Promote to Admin
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleOpenDialog('supremeAdmin')}
+              >
+                Promote to Supreme Admin
+              </Button>
+            </Box>
+            <Box mt={2} display="flex" justifyContent="space-between">
+              <Button
+                variant="contained"
+                onClick={handleModalClose}
+                fullWidth
+                sx={{ mr: 1 }}
+              >
+                Close
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleOpenRemoveAdminDialog(selectedMember)}
+                fullWidth
+                sx={{ ml: 1 }}
+              >
+                Remove Admin
+              </Button>
+            </Box>
 
-          // Confirmation Dialog for Removing Admin
-          <Dialog
-            open={openRemoveAdminDialog}
-            onClose={() => setOpenRemoveAdminDialog(false)}
-          >
-            <DialogTitle>Confirm Removal</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Are you sure you want to remove {selectedMember} as an admin?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenRemoveAdminDialog(false)} color="primary">
-                Cancel
-              </Button>
-              <Button onClick={handleRemoveAdmin} color="secondary">
-                Confirm
-              </Button>
-            </DialogActions>
-          </Dialog>
+            <Dialog
+              open={openRemoveAdminDialog}
+              onClose={() => setOpenRemoveAdminDialog(false)}
+            >
+              <DialogTitle>Confirm Removal</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Are you sure you want to remove {selectedMember} as an admin?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={() => setOpenRemoveAdminDialog(false)}
+                  color="primary"
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleRemoveAdmin} color="secondary">
+                  Confirm
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         </Fade>
       </Modal>
