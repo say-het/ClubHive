@@ -8,6 +8,7 @@ const clubRoutes = require('./routes/club');
 const uniRoutes = require('./routes/university');
 const msgRoutes = require('./routes/msg');
 const cors = require("cors");
+const cloudinary = require('cloudinary').v2; // This is how you import the Cloudinary SDK
 
 const app = express();
 const PORT = 3000;
@@ -20,13 +21,32 @@ app.use(cors({
   credentials: true
 }));
 app.use(bodyParser.json());
-
+//cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.YOUR_CLOUD_NAME,
+  api_key: process.env.YOUR_API_KEY,
+  api_secret: process.env.YOUR_API_SECRET,
+})
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/university', uniRoutes);
 app.use('/api/msg', msgRoutes);
+app.get('/upload-signature', (req, res) => {
+  const timestamp = Math.round((new Date()).getTime() / 1000);
+  const uploadPreset = process.env.UPLOAD_PRESET; // The upload preset you've set in Cloudinary
+  const params = {
+    timestamp,
+    upload_preset: uploadPreset,
+  };
+  const signature = cloudinary.utils.api_sign_request(params, process.env.YOUR_API_SECRET);
 
+  const apikey =  process.env.YOUR_API_KEY
+  console.log("timestamp:",timestamp)
+  console.log("signature:",signature)
+  console.log("api:", process.env.YOUR_API_KEY)
+  res.json({ timestamp, signature, apikey });
+});
 // MongoDB connection
 const uri = process.env.URI;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })

@@ -24,6 +24,9 @@ const Club = () => {
   const [adminToRemove, setAdminToRemove] = useState(''); // To track the admin being removed
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [profileMember, setProfileMember] = useState(null); // Changed state name here
+  // const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [image, setImage] = useState("");
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]); // To store multiple uploaded URLs
   useEffect(() => {
     const fetchClub = async () => {
       try {
@@ -173,6 +176,58 @@ const Club = () => {
   }
 };
   
+const leaveGroup = async () => {
+  try {
+    await axios.post(`http://localhost:3000/api/clubs/leave`, {
+      name,
+      email,
+      clubname: id,
+    });
+    alert("You have left the group.");
+    setIsModalOpen(false);
+    navigate('/home');
+    setMembers((members) => members.filter((member) => member.name !== name));
+  } catch (error) {
+    console.error("Error leaving group", error);
+  }
+};
+const submitImage = async () => {
+  if (!image) {
+    console.log("No image selected");
+    return;
+  }
+
+  // Fetch signature and timestamp from the backend
+  const response = await fetch("http://localhost:3000/upload-signature");
+  const { timestamp, signature, apikey } = await response.json();
+
+  // Prepare the FormData for the image upload request
+  const data = new FormData();
+  data.append("file", image); // The selected image file
+  data.append("upload_preset", "Clubhive"); // Your signed preset name (e.g., "Clubhive")
+  data.append("cloud_name", "dhizeooup"); // Your Cloudinary cloud name
+  data.append("timestamp", timestamp); // Timestamp from backend
+  data.append("signature", signature); // Signature from backend
+  data.append("api_key", apikey); // Your Cloudinary API key
+
+  // Upload the image to Cloudinary
+  fetch("https://api.cloudinary.com/v1_1/dhizeooup/image/upload", {
+    method: "POST",
+    body: data,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.secure_url) {
+        console.log("Upload successful:", data.secure_url);
+        setUploadedImageUrls([...uploadedImageUrls, data.secure_url]); // Add the new image URL to state
+      } else {
+        console.log("Error in upload response:", data);
+      }
+    })
+    .catch((err) => {
+      console.log("Upload Error:", err);
+    });
+};
 
   if (loading) {
     return (
@@ -297,15 +352,10 @@ const Club = () => {
       {(isSupremeAdmin || admins.includes(email)) && (
       <Card sx={{ mt: 4 }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            📸 Upload Event Banners
-          </Typography>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
+        <div>
+        <input type="file" onChange={(e) => setImage(e.target.files[0])} />
+        <button onClick={submitImage}>Upload Photo</button>
+      </div>
         </CardContent>
       </Card>
       )}
