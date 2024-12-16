@@ -3,7 +3,7 @@ import { useNavigate, useParams ,Link} from 'react-router-dom';
 import { Box, Grid, Card, CardContent, Typography, Button, CircularProgress, Modal, Fade, Backdrop, MenuItem, Select, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { Carousel } from 'react-responsive-carousel'; // For Carousel
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Carousel CSS
-
+import EventCalendar from './clubcomponents/events';
 const Club = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -307,9 +307,9 @@ const submitImage = async () => {
           {/* Member List Section */}
           <Card>
           <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Member List
-        </Typography>
+          <Typography variant="h6" gutterBottom>
+            Member List
+          </Typography>
         {members.length > 0 ? (
           <ul>
             {members.map((member, index) => (
@@ -331,7 +331,7 @@ const submitImage = async () => {
           <Typography>No members found.</Typography>
         )}
       </CardContent>
-
+      
       {/* Profile Dialog */}
       {profileMember && ( // Changed variable name here
         <Dialog open={openProfileDialog} onClose={handleCloseProfile}>
@@ -355,7 +355,17 @@ const submitImage = async () => {
         </Dialog>
       )}
         </Card>
-
+        {/* Events calender */}
+        <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Events
+              </Typography>
+              <Typography>
+                <EventCalendar />
+              </Typography>
+            </CardContent>
+          </Card>
         </Grid>
 
         {/* Middle Section: Banner of Events */}
