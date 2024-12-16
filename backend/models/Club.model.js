@@ -52,6 +52,10 @@ const clubSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    clubBanners: [{
+        type: String,
+        default: []  // Set the default to an empty array
+    }]
 });
 
 clubSchema.pre('save', function (next) {

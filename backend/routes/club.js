@@ -494,5 +494,55 @@ router.post('/removeAdmin', async (req, res) => {
 //       res.status(500).json({ msg: "Server error", error: error.message });
 //   }
 // });
+router.post('/fetchBanners/:id', async (req, res) => {
+  const { id } = req.params;  // Retrieve the club unique name from the URL params
+
+  try {
+    const club = await Club.findOne({ clubUniqueName: id });  // Use 'id' to find the club
+    if (club) {
+      const banners = club.clubBanners;  
+      const reversedBanners = [...banners].reverse();  
+      res.json({ banners : reversedBanners });  
+    } else {
+      res.status(404).json({ message: 'Club not found' });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+router.post('/addBanner', async (req, res) => {
+  try {
+    const { clubUniqueName, bannerUrl } = req.body;  // Extract the clubUniqueName and bannerUrl from the request body
+
+    // Check if both clubUniqueName and bannerUrl are provided
+    if (!clubUniqueName || !bannerUrl) {
+      return res.status(400).json({ message: "Club unique name and banner URL are required" });
+    }
+
+    // Find the club by its unique name
+    const club = await Club.findOne({ clubUniqueName });
+    if (!club) {
+      return res.status(404).json({ message: "Club not found" });
+    }
+
+    // Add the new banner URL to the clubBanners array
+    club.clubBanners.push(bannerUrl);  // This will add the banner URL to the array
+
+    // Save the updated club document
+    await club.save();
+
+    // Return the updated list of banners
+    res.json({
+      message: "Banner added successfully",
+      clubBanners: club.clubBanners  // Send the updated banners array
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while adding the banner" });
+  }
+});
 
 module.exports = router;

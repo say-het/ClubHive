@@ -27,6 +27,8 @@ const Club = () => {
   // const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [image, setImage] = useState("");
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]); // To store multiple uploaded URLs
+  const [banners, setBanners] = useState([]);
+
   useEffect(() => {
     const fetchClub = async () => {
       try {
@@ -37,6 +39,16 @@ const Club = () => {
         setSupremeAdmin(data.supremeAdmin);
         setAdmins(data.admins);
         setLoading(false);
+        const response2 = await fetch(`http://localhost:3000/api/clubs/fetchBanners/${id}`, { method: 'POST' });
+        const data2 = await response2.json();  // Parse the response JSON
+    
+        if (response2.ok) {
+          console.log(data2);
+          setBanners(Array.isArray(data2.banners) ? data2.banners : [data2.banners]);
+          console.log(banners);
+        } else {
+          console.log("Failed to fetch the banners");
+        }
       } catch (error) {
         console.error("Error fetching club details:", error);
         setLoading(false);
@@ -191,6 +203,30 @@ const leaveGroup = async () => {
     console.error("Error leaving group", error);
   }
 };
+const addBanner = async (clubUniqueName, bannerUrl) => {
+  try {
+    const response = await fetch('http://localhost:3000/api/clubs/addBanner', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        clubUniqueName, // Sending the club's unique name
+        bannerUrl,      // Sending the banner URL
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('Banner added successfully!', data.clubBanners); // Updated list of banners
+    } else {
+      console.error('Error adding banner:', data.message);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
 const submitImage = async () => {
   if (!image) {
     console.log("No image selected");
@@ -219,6 +255,7 @@ const submitImage = async () => {
     .then((data) => {
       if (data.secure_url) {
         console.log("Upload successful:", data.secure_url);
+        addBanner(id,data.secure_url)
         setUploadedImageUrls([...uploadedImageUrls, data.secure_url]); // Add the new image URL to state
       } else {
         console.log("Error in upload response:", data);
@@ -325,15 +362,18 @@ const submitImage = async () => {
         <Grid item xs={12} lg={8}>
           {/* Event Banner Carousel */}
           <Card sx={{ mb: 4 }}>
-            <Carousel>
-              {eventImages.map((image, index) => (
+          <Carousel>            
+            {banners.length > 0 ? (
+              banners.map((bannerUrl, index) => (
                 <div key={index}>
-                  <img src={image} alt={`event-banner-${index}`} />
+                  <img src={bannerUrl} alt={`event-banner-${index}`} />
                 </div>
-              ))}
-            </Carousel>
-          </Card>
-
+              ))
+            ) : (
+              <Typography>No banners found.</Typography>
+            )}
+          </Carousel>
+        </Card>
           {/* Other Options Section */}
           <Card>
             <CardContent>
