@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user');
 const clubRoutes = require('./routes/club');
 const uniRoutes = require('./routes/university');
 const msgRoutes = require('./routes/msg');
+const mailRoutes = require('./routes/mail');
 const cors = require("cors");
 const cloudinary = require('cloudinary').v2; // This is how you import the Cloudinary SDK
 

@@ -28,13 +28,14 @@ const Club = () => {
   const [image, setImage] = useState("");
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]); // To store multiple uploaded URLs
   const [banners, setBanners] = useState([]);
-
+  const [EmailList, setEmailList] = useState([]);
   useEffect(() => {
     const fetchClub = async () => {
       try {
         const response = await fetch(`http://localhost:3000/api/clubs/getclubmembers/${id}`, { method: 'POST' });
         const data = await response.json();
         setMembers(data.members);
+        setEmailList(data.email);
         setClubDescription(data.clubDescription);
         setSupremeAdmin(data.supremeAdmin);
         setAdmins(data.admins);
@@ -362,7 +363,7 @@ const submitImage = async () => {
                 Events
               </Typography>
               <Typography>
-                <EventCalendar />
+                <EventCalendar EmailList={EmailList} clubUniqueName={id} />
               </Typography>
             </CardContent>
           </Card>
